@@ -1,0 +1,22 @@
+{
+  "name": "peer-resonant-concept-mapping-api",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241205.0",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8",
+    "wrangler": "^3.99.0"
+  },
+  "dependencies": {
+    "hono": "^4.6.14",
+    "firebase-admin": "^13.0.2",
+    "fast-check": "^3.23.2"
+  }
+}

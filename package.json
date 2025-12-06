@@ -1,0 +1,20 @@
+{
+  "name": "peer-resonant-concept-mapping",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "workers",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=frontend",
+    "dev:api": "npm run dev --workspace=workers",
+    "build": "npm run build --workspace=frontend",
+    "test": "npm run test --workspaces",
+    "test:frontend": "npm run test --workspace=frontend",
+    "test:workers": "npm run test --workspace=workers",
+    "test:shared": "npm run test --workspace=shared",
+    "deploy": "npm run deploy --workspace=workers"
+  }
+}
