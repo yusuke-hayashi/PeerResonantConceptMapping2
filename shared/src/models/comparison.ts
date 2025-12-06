@@ -1,16 +1,26 @@
 import type { NodeType, Position } from './concept-map';
 
 /**
- * Comparison type enum
+ * Comparison mode enum
  */
-export const ComparisonType = {
+export const ComparisonMode = {
   ONE_TO_ONE: 'one_to_one',
   TEACHER_TO_ALL: 'teacher_to_all',
   ALL_STUDENTS: 'all_students',
   PARTIAL_STUDENTS: 'partial_students',
 } as const;
 
-export type ComparisonType = (typeof ComparisonType)[keyof typeof ComparisonType];
+export type ComparisonMode = (typeof ComparisonMode)[keyof typeof ComparisonMode];
+
+/**
+ * @deprecated Use ComparisonMode instead
+ */
+export const ComparisonType = ComparisonMode;
+
+/**
+ * @deprecated Use ComparisonMode instead
+ */
+export type ComparisonType = ComparisonMode;
 
 /**
  * Adjusted node interface
@@ -47,18 +57,42 @@ export interface AdjustedConceptMap {
  * Node match interface
  */
 export interface NodeMatch {
-  nodeId1: string;
-  nodeId2: string;
+  node1Id: string;
+  node2Id: string;
+  originalLabel1: string;
+  originalLabel2: string;
   adjustedLabel: string;
-  confidence: number;
+  similarity: number;
 }
 
 /**
  * Link match interface
  */
 export interface LinkMatch {
-  linkId1: string;
-  linkId2: string;
+  link1Id: string;
+  link2Id: string;
+  originalRelationship1: string;
+  originalRelationship2: string;
+  adjustedRelationship: string;
+  similarity: number;
+}
+
+/**
+ * Node adjustment result
+ */
+export interface NodeAdjustmentResult {
+  nodeId: string;
+  originalLabel: string;
+  adjustedLabel: string;
+  confidence: number;
+}
+
+/**
+ * Link adjustment result
+ */
+export interface LinkAdjustmentResult {
+  linkId: string;
+  originalRelationship: string;
   adjustedRelationship: string;
   confidence: number;
 }
@@ -84,9 +118,30 @@ export interface Difference {
 }
 
 /**
- * Comparison result interface
+ * Pairwise comparison result interface
+ * Property 12: Comparison result structural integrity
  */
 export interface ComparisonResult {
+  map1Id: string;
+  map2Id: string;
+  similarityScore: number;
+  matchedNodes: NodeMatch[];
+  matchedLinks: LinkMatch[];
+  uniqueNodesMap1: string[];
+  uniqueNodesMap2: string[];
+  uniqueLinksMap1: string[];
+  uniqueLinksMap2: string[];
+  adjustedNodes1: NodeAdjustmentResult[];
+  adjustedNodes2: NodeAdjustmentResult[];
+  adjustedLinks1: LinkAdjustmentResult[];
+  adjustedLinks2: LinkAdjustmentResult[];
+}
+
+/**
+ * Legacy comparison result interface
+ * @deprecated Use ComparisonResult instead
+ */
+export interface LegacyComparisonResult {
   adjustedMaps: AdjustedConceptMap[];
   similarities: Similarity[];
   differences: Difference[];
@@ -102,11 +157,11 @@ export interface ComparisonResult {
  */
 export interface Comparison {
   id: string;
-  type: ComparisonType;
+  mode: ComparisonMode;
   topicId: string;
   mapIds: string[];
   createdBy: string;
-  result: ComparisonResult;
+  results: ComparisonResult[];
   createdAt: Date;
 }
 
