@@ -17,12 +17,14 @@ export const Collections = {
 export interface FirestoreService {
   // User operations
   getUser(userId: string): Promise<User | null>;
+  getUsersByRole(role: 'teacher' | 'student'): Promise<User[]>;
   createUser(user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User>;
   updateUser(userId: string, updates: Partial<User>): Promise<User>;
 
   // Topic operations
   getTopic(topicId: string): Promise<Topic | null>;
   getTopics(): Promise<Topic[]>;
+  getAllTopics(): Promise<Topic[]>;
   getTopicsByCreator(creatorId: string): Promise<Topic[]>;
   createTopic(topic: Omit<Topic, 'id' | 'createdAt' | 'updatedAt'>): Promise<Topic>;
   updateTopic(topicId: string, updates: Partial<Topic>): Promise<Topic>;
@@ -100,12 +102,20 @@ export function createMockFirestoreService(): FirestoreService {
       return updated;
     },
 
+    async getUsersByRole(role: 'teacher' | 'student'): Promise<User[]> {
+      return Array.from(users.values()).filter((u) => u.role === role);
+    },
+
     // Topic operations
     async getTopic(topicId: string): Promise<Topic | null> {
       return topics.get(topicId) ?? null;
     },
 
     async getTopics(): Promise<Topic[]> {
+      return Array.from(topics.values());
+    },
+
+    async getAllTopics(): Promise<Topic[]> {
       return Array.from(topics.values());
     },
 

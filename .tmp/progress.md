@@ -2,7 +2,7 @@
 
 ## 現在の状況
 
-タスク1〜10まで完了。バックエンドのコアサービス（データモデル、認証、Firestore、概念マップ、LLMアダプター、比較、権限）とプロパティテストを実装済み。
+タスク1〜11まで完了。バックエンドのコアサービス（データモデル、認証、Firestore、概念マップ、LLMアダプター、比較、権限）、プロパティテスト、およびCloudflare Workers REST APIを実装済み。
 
 ## 完了したタスク
 
@@ -22,12 +22,13 @@
 - [x] 8. 比較サービスの実装 (8.1-8.8)
 - [x] 9. 権限サービスの実装 (9-9.2)
 - [x] 10. チェックポイント
+- [x] 11. Cloudflare Workers APIの実装
 
 ## テスト結果
 
 - shared: 12テストパス
-- workers: 58テストパス
-- 合計: 70テストパス
+- workers: 69テストパス
+- 合計: 81テストパス
 
 ## 実装済みサービス
 
@@ -38,6 +39,51 @@
 - `llm-adapter.ts` - LLM語彙調整アダプター
 - `comparison-service.ts` - 比較作成・取得
 - `permission-service.ts` - 権限管理
+
+### workers/src/routes/
+- `topics.ts` - トピックエンドポイント
+- `concept-maps.ts` - 概念マップエンドポイント
+- `comparisons.ts` - 比較エンドポイント
+- `users.ts` - ユーザーエンドポイント
+
+### APIエンドポイント
+
+#### Public
+- `GET /` - API情報
+- `GET /health` - ヘルスチェック
+
+#### Topics (/api/v1/topics)
+- `GET /` - トピック一覧取得
+- `GET /:id` - トピック取得
+- `POST /` - トピック作成（教師のみ）
+- `PUT /:id` - トピック更新（教師のみ）
+- `DELETE /:id` - トピック削除（教師のみ）
+
+#### Concept Maps (/api/v1/concept-maps)
+- `GET /` - マップ一覧取得
+- `GET /grouped` - トピック別マップ取得
+- `GET /:id` - マップ取得
+- `POST /` - マップ作成
+- `PUT /:id` - マップ更新
+- `POST /:id/nodes` - ノード追加
+- `DELETE /:id/nodes/:nodeId` - ノード削除
+- `POST /:id/links` - リンク追加
+- `DELETE /:id/links/:linkId` - リンク削除
+- `DELETE /:id` - マップ削除
+
+#### Comparisons (/api/v1/comparisons)
+- `GET /` - 比較一覧取得
+- `GET /:id` - 比較取得
+- `POST /` - 比較作成（教師のみ）
+- `GET /:id/permissions` - 権限一覧取得
+- `POST /:id/permissions` - 権限付与
+- `DELETE /:id/permissions` - 権限取り消し
+
+#### Users (/api/v1/users)
+- `GET /me` - 現在のユーザー情報取得
+- `GET /students` - 学生一覧取得（教師のみ）
+- `GET /:id/maps` - ユーザーのマップ一覧
+- `GET /:id/comparisons` - ユーザーの比較一覧
 
 ### プロパティテスト
 - Property 1: 概念マップの永続化ラウンドトリップ
@@ -59,12 +105,11 @@
 
 ## 次のステップ
 
-タスク11から順に実装を継続:
-1. Cloudflare Workers APIの実装（11）
-2. Reactフロントエンドの基本構造（12）
-3. 認証UIの実装（13）
-4. トピック管理UIの実装（14）
-5. 概念マップエディタUIの実装（15）
+タスク12から順に実装を継続:
+1. Reactフロントエンドの基本構造（12）
+2. 認証UIの実装（13）
+3. トピック管理UIの実装（14）
+4. 概念マップエディタUIの実装（15）
 
 ## 課題・注意事項
 
@@ -84,7 +129,8 @@ PeerResonantConceptMapping2/
 │   └── src/
 │       ├── middleware/    # 認証ミドルウェア
 │       ├── services/      # 全サービス実装
-│       └── __tests__/     # プロパティテスト
+│       ├── routes/        # APIルーター
+│       └── __tests__/     # プロパティテスト・統合テスト
 ├── shared/                # 共有型定義・バリデーション
 │   └── src/
 │       ├── models/        # データモデル
