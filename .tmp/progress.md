@@ -2,7 +2,7 @@
 
 ## 現在の状況
 
-タスク1〜11まで完了。バックエンドのコアサービス（データモデル、認証、Firestore、概念マップ、LLMアダプター、比較、権限）、プロパティテスト、およびCloudflare Workers REST APIを実装済み。
+タスク1〜12まで完了。バックエンドのコアサービス、Cloudflare Workers REST API、およびフロントエンドの基本構造を実装済み。
 
 ## 完了したタスク
 
@@ -23,6 +23,10 @@
 - [x] 9. 権限サービスの実装 (9-9.2)
 - [x] 10. チェックポイント
 - [x] 11. Cloudflare Workers APIの実装
+- [x] 12. Reactフロントエンドの基本構造
+  - ProtectedRoute, Header, Navigation, Layout
+  - LoginPage, DashboardPage, NotFoundPage
+  - React Router統合, ロール別メニュー表示
 
 ## テスト結果
 
@@ -105,11 +109,10 @@
 
 ## 次のステップ
 
-タスク12から順に実装を継続:
-1. Reactフロントエンドの基本構造（12）
-2. 認証UIの実装（13）
-3. トピック管理UIの実装（14）
-4. 概念マップエディタUIの実装（15）
+タスク13から順に実装を継続:
+1. 認証UIの実装（13）- ログインページ改善、サインアップ
+2. トピック管理UIの実装（14）
+3. 概念マップエディタUIの実装（15）
 
 ## 課題・注意事項
 
@@ -123,6 +126,8 @@
 PeerResonantConceptMapping2/
 ├── frontend/              # React + TypeScript (Vite)
 │   └── src/
+│       ├── components/    # ProtectedRoute, Header, Navigation, Layout
+│       ├── pages/         # LoginPage, DashboardPage, NotFoundPage
 │       ├── config/        # Firebase設定
 │       └── contexts/      # AuthContext
 ├── workers/               # Cloudflare Workers (Hono)

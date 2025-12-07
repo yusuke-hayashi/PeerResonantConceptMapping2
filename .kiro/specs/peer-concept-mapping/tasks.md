@@ -170,11 +170,33 @@
   - _要件: 8.3, 8.4_
   - shared: 12テストパス、workers: 69テストパス（合計81テスト）
 
-- [ ] 12. Reactフロントエンドの基本構造
+- [x] 12. Reactフロントエンドの基本構造
   - ルーティング設定（React Router）
   - 認証コンテキストの実装
   - レイアウトコンポーネント（ヘッダー、ナビゲーション）
   - _要件: 8.3, 8.4_
+
+  **実装済み:**
+  - `src/config/firebase.ts` - Firebase初期化
+  - `src/contexts/AuthContext.tsx` - 認証コンテキスト（signIn, signOut, useAuth）
+
+  **実装完了ファイル:**
+  - [x] 12.1 `src/components/ProtectedRoute.tsx` - 認証保護ルート
+    - 認証チェック、未認証時リダイレクト、ローディング表示
+  - [x] 12.2 `src/components/Header.tsx` - ヘッダー
+    - アプリ名、ユーザー情報、ログアウトボタン
+  - [x] 12.3 `src/components/Navigation.tsx` - ナビゲーション
+    - ロール別メニュー（共通: ダッシュボード、マイマップ / 教師: トピック管理、比較、学生一覧）
+  - [x] 12.4 `src/components/Layout.tsx` - レイアウト
+    - Header + Navigation + Outlet
+  - [x] 12.5 `src/pages/LoginPage.tsx` - ログインページ
+    - メール/パスワードフォーム、signIn呼び出し
+  - [x] 12.6 `src/pages/DashboardPage.tsx` - ダッシュボード
+    - ロール別ウェルカムメッセージ、クイックリンク
+  - [x] 12.7 `src/pages/NotFoundPage.tsx` - 404ページ
+  - [x] 12.8 `src/App.tsx` - ルーティング統合
+    - React Router設定、ProtectedRoute適用
+  - [x] `src/App.css` - 基本スタイリング
 
 - [ ] 13. 認証UIの実装
   - ログインページの実装

@@ -841,3 +841,122 @@ const linkArbitrary = fc.record({
 - **CI/CD**: GitHub Actionsでプルリクエスト毎に自動テスト実行
 - **ステージング環境**: 本番に近い環境で統合テストとE2Eテストを実行
 
+## フロントエンド設計（Task 12-18）
+
+### ディレクトリ構造
+
+```
+frontend/src/
+├── components/
+│   ├── Layout.tsx          # メインレイアウト
+│   ├── Header.tsx          # ヘッダー（ユーザー情報、ログアウト）
+│   ├── Navigation.tsx      # ロール別ナビゲーション
+│   └── ProtectedRoute.tsx  # 認証保護ルート
+├── pages/
+│   ├── LoginPage.tsx       # ログインページ
+│   ├── DashboardPage.tsx   # ダッシュボード
+│   └── NotFoundPage.tsx    # 404ページ
+├── contexts/
+│   └── AuthContext.tsx     # 認証コンテキスト（実装済み）
+├── config/
+│   └── firebase.ts         # Firebase設定（実装済み）
+└── App.tsx                 # ルーティング統合
+```
+
+### Task 12: フロントエンド基本構造
+
+#### 実装済み
+- `src/config/firebase.ts` - Firebase初期化
+- `src/contexts/AuthContext.tsx` - 認証コンテキスト（signIn, signOut, useAuth）
+
+#### 新規実装
+
+1. **ProtectedRoute** (`src/components/ProtectedRoute.tsx`)
+   - 認証チェック
+   - 未認証時は`/login`へリダイレクト
+   - ローディング状態の表示
+
+2. **Header** (`src/components/Header.tsx`)
+   - アプリ名表示
+   - ユーザー情報（displayName、role）
+   - ログアウトボタン
+
+3. **Navigation** (`src/components/Navigation.tsx`)
+   - ロール別メニュー表示
+     - 共通: ダッシュボード、マイマップ
+     - 教師のみ: トピック管理、比較機能
+
+4. **Layout** (`src/components/Layout.tsx`)
+   - Header + Navigation + Outlet（子ルート）
+
+5. **LoginPage** (`src/pages/LoginPage.tsx`)
+   - メール/パスワード入力フォーム
+   - useAuth().signIn()呼び出し
+
+6. **DashboardPage** (`src/pages/DashboardPage.tsx`)
+   - ロール別のウェルカムメッセージ
+
+7. **NotFoundPage** (`src/pages/NotFoundPage.tsx`)
+   - 404エラー表示
+
+8. **App.tsx**（更新）
+   ```tsx
+   <AuthProvider>
+     <BrowserRouter>
+       <Routes>
+         <Route path="/login" element={<LoginPage />} />
+         <Route element={<ProtectedRoute />}>
+           <Route element={<Layout />}>
+             <Route path="/" element={<DashboardPage />} />
+             <Route path="/maps" element={<Placeholder />} />
+             <Route path="/topics" element={<Placeholder />} />
+             <Route path="/comparisons" element={<Placeholder />} />
+           </Route>
+         </Route>
+         <Route path="*" element={<NotFoundPage />} />
+       </Routes>
+     </BrowserRouter>
+   </AuthProvider>
+   ```
+
+### Cloudflare Workers と Firebase の接続
+
+#### 現在の構成
+- **フロントエンド**: Firebase SDK直接使用（Authentication、Firestore）
+- **バックエンド (Workers)**: モック実装（本番ではFirebase Admin SDK必要）
+
+#### 本番環境での接続方法
+
+1. **Firebase Admin SDK for Workers**
+   - Cloudflare WorkersではNode.js APIが制限されているため、firebase-admin SDKは直接使用不可
+   - 代替案:
+     - Firebase REST API使用
+     - @anthropic-ai/firebase-admin-cf (Cloudflare Workers用)
+
+2. **環境変数設定 (wrangler.toml)**
+   ```toml
+   [vars]
+   ENVIRONMENT = "production"
+
+   # シークレット（wrangler secret putで設定）
+   # FIREBASE_PROJECT_ID
+   # FIREBASE_CLIENT_EMAIL
+   # FIREBASE_PRIVATE_KEY
+   ```
+
+3. **認証フロー**
+   ```
+   フロントエンド                Workers                  Firebase
+       |                          |                          |
+       |--Firebase Auth login---->|                          |
+       |<---ID Token--------------|                          |
+       |                          |                          |
+       |--API Request + Token---->|                          |
+       |                          |--Verify Token (REST)---->|
+       |                          |<---Token Info------------|
+       |                          |                          |
+       |                          |--Firestore REST API----->|
+       |                          |<---Data------------------|
+       |<---Response--------------|                          |
+   ```
+
