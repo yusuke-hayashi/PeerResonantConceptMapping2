@@ -609,3 +609,56 @@ body {
 .concept-map-editor {
   position: relative;
 }
+
+/* Editor toolbar buttons */
+.editor-toolbar-buttons {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 100;
+  display: flex;
+  gap: 8px;
+}
+
+.toolbar-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.toolbar-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.add-node-btn {
+  background-color: #1a73e8;
+  color: white;
+}
+
+.add-node-btn:hover:not(:disabled) {
+  background-color: #1557b0;
+}
+
+.add-link-btn {
+  background-color: #34a853;
+  color: white;
+}
+
+.add-link-btn:hover:not(:disabled) {
+  background-color: #2d8e47;
+}
+
+.delete-btn {
+  background-color: #ea4335;
+  color: white;
+}
+
+.delete-btn:hover:not(:disabled) {
+  background-color: #c5382d;
+}

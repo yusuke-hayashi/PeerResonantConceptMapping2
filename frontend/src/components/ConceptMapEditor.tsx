@@ -110,6 +110,7 @@ export function ConceptMapEditor({
   const [dialogPosition, setDialogPosition] = useState({ x: 0, y: 0 });
   const pendingPositionRef = useRef<{ x: number; y: number } | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
 
   const notifyChange = useCallback(
     (newNodes: Node[], newEdges: Edge[]) => {
@@ -188,12 +189,12 @@ export function ConceptMapEditor({
 
   const handleAddNode = useCallback(
     (label: string, nodeType: 'noun' | 'verb', color: string) => {
-      if (!pendingPositionRef.current) return;
+      const position = pendingPositionRef.current || { x: 200, y: 200 };
 
       const newNode: Node = {
         id: `node-${Date.now()}`,
         type: 'conceptNode',
-        position: pendingPositionRef.current,
+        position,
         data: {
           label,
           nodeType,
@@ -212,8 +213,95 @@ export function ConceptMapEditor({
     [edges, notifyChange]
   );
 
+  const handleAddNodeButton = useCallback(() => {
+    // Calculate center position based on existing nodes or default
+    const wrapper = reactFlowWrapper.current;
+    if (wrapper) {
+      const bounds = wrapper.getBoundingClientRect();
+      pendingPositionRef.current = { x: bounds.width / 2, y: bounds.height / 2 };
+      setDialogPosition({ x: bounds.width / 2, y: bounds.height / 2 });
+    } else {
+      pendingPositionRef.current = { x: 200, y: 200 };
+      setDialogPosition({ x: 200, y: 200 });
+    }
+    setDialogOpen(true);
+  }, []);
+
+  const handleSelectionChange = useCallback(({ nodes: selectedNodesList }: { nodes: Node[] }) => {
+    setSelectedNodes(selectedNodesList.map(n => n.id));
+  }, []);
+
+  const handleAddLinkButton = useCallback(() => {
+    if (selectedNodes.length !== 2) {
+      alert('Please select exactly 2 nodes to create a link');
+      return;
+    }
+
+    const relationship = prompt('Enter relationship:');
+    if (relationship !== null) {
+      const newEdge: Edge = {
+        id: `e${selectedNodes[0]}-${selectedNodes[1]}-${Date.now()}`,
+        source: selectedNodes[0],
+        target: selectedNodes[1],
+        label: relationship,
+        type: 'default',
+        style: { stroke: '#6B7280', strokeWidth: 2 },
+        labelStyle: { fill: '#333', fontWeight: 500 },
+        labelBgStyle: { fill: '#fff', fillOpacity: 0.8 },
+      };
+      setEdges((eds) => {
+        const newEdges = addEdge(newEdge, eds);
+        notifyChange(nodes, newEdges);
+        return newEdges;
+      });
+    }
+  }, [selectedNodes, nodes, notifyChange]);
+
+  const handleDeleteSelected = useCallback(() => {
+    if (selectedNodes.length === 0) {
+      alert('Please select nodes to delete');
+      return;
+    }
+
+    setNodes((nds) => {
+      const newNodes = nds.filter(n => !selectedNodes.includes(n.id));
+      // Also remove edges connected to deleted nodes
+      setEdges((eds) => {
+        const newEdges = eds.filter(e =>
+          !selectedNodes.includes(e.source) && !selectedNodes.includes(e.target)
+        );
+        notifyChange(newNodes, newEdges);
+        return newEdges;
+      });
+      return newNodes;
+    });
+    setSelectedNodes([]);
+  }, [selectedNodes, notifyChange]);
+
   return (
     <div ref={reactFlowWrapper} className="concept-map-editor" style={{ width: '100%', height: '100%' }}>
+      {!readOnly && (
+        <div className="editor-toolbar-buttons">
+          <button className="toolbar-button add-node-btn" onClick={handleAddNodeButton}>
+            + Add Node
+          </button>
+          <button
+            className="toolbar-button add-link-btn"
+            onClick={handleAddLinkButton}
+            disabled={selectedNodes.length !== 2}
+          >
+            + Add Link {selectedNodes.length === 2 ? '' : `(Select 2 nodes)`}
+          </button>
+          <button
+            className="toolbar-button delete-btn"
+            onClick={handleDeleteSelected}
+            disabled={selectedNodes.length === 0}
+          >
+            Delete Selected
+          </button>
+        </div>
+      )}
+
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -221,12 +309,14 @@ export function ConceptMapEditor({
         onEdgesChange={readOnly ? undefined : onEdgesChange}
         onConnect={readOnly ? undefined : onConnect}
         onDoubleClick={onDoubleClick}
+        onSelectionChange={handleSelectionChange}
         nodeTypes={nodeTypes}
         fitView
         deleteKeyCode={readOnly ? null : 'Delete'}
         nodesDraggable={!readOnly}
         nodesConnectable={!readOnly}
         elementsSelectable={!readOnly}
+        selectionOnDrag
       >
         <Controls />
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
@@ -241,7 +331,7 @@ export function ConceptMapEditor({
 
       {!readOnly && (
         <div className="editor-hint">
-          Double-click to add a node. Drag from one node to another to create a link.
+          Click nodes to select (Shift+click for multiple). Use buttons above to add/delete.
         </div>
       )}
     </div>
