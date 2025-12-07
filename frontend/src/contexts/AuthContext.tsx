@@ -7,11 +7,13 @@ import {
 } from 'react';
 import {
   signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile,
   signOut as firebaseSignOut,
   onAuthStateChanged,
   type User as FirebaseUser,
 } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
 
 /**
@@ -37,6 +39,7 @@ interface AuthContextState {
   loading: boolean;
   error: string | null;
   signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, displayName: string, role: UserRole) => Promise<void>;
   signOut: () => Promise<void>;
   isTeacher: boolean;
   isStudent: boolean;
@@ -103,6 +106,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const signUp = async (email: string, password: string, displayName: string, role: UserRole) => {
+    setError(null);
+    setLoading(true);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const firebaseUser = userCredential.user;
+
+      // Update display name in Firebase Auth
+      await updateProfile(firebaseUser, { displayName });
+
+      // Create user document in Firestore
+      await setDoc(doc(db, 'users', firebaseUser.uid), {
+        email,
+        role,
+        displayName,
+        createdAt: new Date().toISOString(),
+      });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Sign up failed';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const signOut = async () => {
     setError(null);
     try {
@@ -120,6 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     error,
     signIn,
+    signUp,
     signOut,
     isTeacher: user?.role === 'teacher',
     isStudent: user?.role === 'student',

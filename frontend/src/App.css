@@ -154,14 +154,16 @@ body {
   color: #333;
 }
 
-.form-group input {
+.form-group input,
+.form-group select {
   padding: 12px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
 }
 
-.form-group input:focus {
+.form-group input:focus,
+.form-group select:focus {
   outline: none;
   border-color: #1a73e8;
   box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
@@ -192,6 +194,22 @@ body {
 .login-button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+.signup-link {
+  text-align: center;
+  margin-top: 24px;
+  color: #666;
+}
+
+.signup-link a {
+  color: #1a73e8;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.signup-link a:hover {
+  text-decoration: underline;
 }
 
 /* Dashboard */
