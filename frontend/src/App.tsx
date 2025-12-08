@@ -7,6 +7,7 @@ import { SignUpPage } from './pages/SignUpPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { MapsPage } from './pages/MapsPage';
 import { MapEditorPage } from './pages/MapEditorPage';
+import { TopicsPage } from './pages/TopicsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import './App.css';
 
@@ -34,7 +35,7 @@ function App() {
               <Route path="/" element={<DashboardPage />} />
               <Route path="/maps" element={<MapsPage />} />
               <Route path="/maps/:id" element={<MapEditorPage />} />
-              <Route path="/topics" element={<Placeholder title="Topic Management" />} />
+              <Route path="/topics" element={<TopicsPage />} />
               <Route path="/comparisons" element={<Placeholder title="Comparisons" />} />
               <Route path="/students" element={<Placeholder title="Students" />} />
             </Route>

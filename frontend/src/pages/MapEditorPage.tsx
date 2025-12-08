@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { ConceptMapEditor } from '../components/ConceptMapEditor';
 import {
@@ -16,6 +16,8 @@ import {
 export function MapEditorPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const topicIdFromUrl = searchParams.get('topicId');
   const { user } = useAuth();
   const isNew = id === 'new';
 
@@ -66,7 +68,7 @@ export function MapEditorPage() {
       setError(null);
 
       if (isNew) {
-        const newMapId = await createMap(user.id, title || 'Untitled Map');
+        const newMapId = await createMap(user.id, title || 'Untitled Map', topicIdFromUrl || 'default');
         await updateMap(newMapId, { title: title || 'Untitled Map', nodes, links });
         navigate(`/maps/${newMapId}`, { replace: true });
       } else if (id) {

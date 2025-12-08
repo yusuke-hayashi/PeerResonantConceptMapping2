@@ -230,3 +230,49 @@ export async function createTopic(
   const docRef = await addDoc(topicsRef, newTopic);
   return docRef.id;
 }
+
+/**
+ * Get a single topic by ID
+ */
+export async function getTopic(topicId: string): Promise<Topic | null> {
+  const docRef = doc(db, 'topics', topicId);
+  const docSnap = await getDoc(docRef);
+
+  if (!docSnap.exists()) {
+    return null;
+  }
+
+  const data = docSnap.data();
+  return {
+    id: docSnap.id,
+    ...data,
+    createdAt: convertTimestamp(data.createdAt),
+    updatedAt: convertTimestamp(data.updatedAt),
+  } as Topic;
+}
+
+/**
+ * Update a topic
+ */
+export async function updateTopic(
+  topicId: string,
+  updates: {
+    name?: string;
+    description?: string;
+  }
+): Promise<void> {
+  const docRef = doc(db, 'topics', topicId);
+
+  await updateDoc(docRef, {
+    ...updates,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/**
+ * Delete a topic
+ */
+export async function deleteTopic(topicId: string): Promise<void> {
+  const docRef = doc(db, 'topics', topicId);
+  await deleteDoc(docRef);
+}
