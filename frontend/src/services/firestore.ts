@@ -549,16 +549,18 @@ export async function getComparisons(teacherId: string): Promise<Comparison[]> {
   const comparisonsRef = collection(db, 'comparisons');
   const q = query(
     comparisonsRef,
-    where('createdBy', '==', teacherId),
-    orderBy('createdAt', 'desc')
+    where('createdBy', '==', teacherId)
   );
 
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({
+  const comparisons = snapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data(),
     createdAt: convertTimestamp(doc.data().createdAt),
   })) as Comparison[];
+
+  // クライアント側でソート（複合インデックス不要）
+  return comparisons.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 }
 
 /**
