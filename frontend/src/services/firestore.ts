@@ -302,17 +302,19 @@ export async function getTeachers(): Promise<User[]> {
   const usersRef = collection(db, 'users');
   const q = query(
     usersRef,
-    where('role', '==', 'teacher'),
-    orderBy('displayName', 'asc')
+    where('role', '==', 'teacher')
   );
 
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({
+  const teachers = snapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data(),
     createdAt: convertTimestamp(doc.data().createdAt),
     updatedAt: convertTimestamp(doc.data().updatedAt),
   })) as User[];
+
+  // クライアント側でソート
+  return teachers.sort((a, b) => a.displayName.localeCompare(b.displayName));
 }
 
 /**
@@ -323,17 +325,19 @@ export async function getStudentsByTeacher(teacherId: string): Promise<User[]> {
   const q = query(
     usersRef,
     where('role', '==', 'student'),
-    where('teacherId', '==', teacherId),
-    orderBy('displayName', 'asc')
+    where('teacherId', '==', teacherId)
   );
 
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({
+  const students = snapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data(),
     createdAt: convertTimestamp(doc.data().createdAt),
     updatedAt: convertTimestamp(doc.data().updatedAt),
   })) as User[];
+
+  // クライアント側でソート
+  return students.sort((a, b) => a.displayName.localeCompare(b.displayName));
 }
 
 /**
@@ -391,8 +395,7 @@ export async function getUnassignedStudents(): Promise<User[]> {
   // 全学生を取得してフィルタリングする
   const q = query(
     usersRef,
-    where('role', '==', 'student'),
-    orderBy('displayName', 'asc')
+    where('role', '==', 'student')
   );
 
   const snapshot = await getDocs(q);
@@ -403,6 +406,8 @@ export async function getUnassignedStudents(): Promise<User[]> {
     updatedAt: convertTimestamp(doc.data().updatedAt),
   })) as User[];
 
-  // teacherIdがないものをフィルタ
-  return students.filter(s => !s.teacherId);
+  // teacherIdがないものをフィルタし、クライアント側でソート
+  return students
+    .filter(s => !s.teacherId)
+    .sort((a, b) => a.displayName.localeCompare(b.displayName));
 }
