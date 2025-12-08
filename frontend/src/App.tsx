@@ -8,6 +8,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { MapsPage } from './pages/MapsPage';
 import { MapEditorPage } from './pages/MapEditorPage';
 import { TopicsPage } from './pages/TopicsPage';
+import { StudentsPage } from './pages/StudentsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import './App.css';
 
@@ -37,7 +38,7 @@ function App() {
               <Route path="/maps/:id" element={<MapEditorPage />} />
               <Route path="/topics" element={<TopicsPage />} />
               <Route path="/comparisons" element={<Placeholder title="Comparisons" />} />
-              <Route path="/students" element={<Placeholder title="Students" />} />
+              <Route path="/students" element={<StudentsPage />} />
             </Route>
           </Route>
           <Route path="*" element={<NotFoundPage />} />

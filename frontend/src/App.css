@@ -906,3 +906,88 @@ body {
 .create-map-dialog input {
   width: 100%;
 }
+
+/* Students page */
+.students-page {
+  max-width: 1200px;
+}
+
+.students-page h2 {
+  margin-bottom: 24px;
+}
+
+.students-section {
+  margin-bottom: 32px;
+}
+
+.students-section h3 {
+  margin-bottom: 16px;
+  color: #333;
+  font-size: 1.125rem;
+}
+
+.students-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.student-card {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: box-shadow 0.2s;
+}
+
+.student-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.student-info h4 {
+  margin: 0 0 4px;
+  color: #333;
+  font-size: 1rem;
+}
+
+.student-info p {
+  margin: 0;
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.student-action-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.student-action-btn.add {
+  background-color: #e8f0fe;
+  color: #1a73e8;
+}
+
+.student-action-btn.add:hover {
+  background-color: #d2e3fc;
+}
+
+.student-action-btn.remove {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+.student-action-btn.remove:hover {
+  background-color: #ffcdd2;
+}
+
+.form-hint {
+  color: #666;
+  font-size: 0.75rem;
+  margin-top: 4px;
+}

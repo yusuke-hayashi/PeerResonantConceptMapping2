@@ -39,7 +39,7 @@ interface AuthContextState {
   loading: boolean;
   error: string | null;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, displayName: string, role: UserRole) => Promise<void>;
+  signUp: (email: string, password: string, displayName: string, role: UserRole, teacherId?: string) => Promise<void>;
   signOut: () => Promise<void>;
   isTeacher: boolean;
   isStudent: boolean;
@@ -106,7 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, displayName: string, role: UserRole) => {
+  const signUp = async (email: string, password: string, displayName: string, role: UserRole, teacherId?: string) => {
     setError(null);
     setLoading(true);
     try {
@@ -117,12 +117,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await updateProfile(firebaseUser, { displayName });
 
       // Create user document in Firestore
-      await setDoc(doc(db, 'users', firebaseUser.uid), {
+      const userData: Record<string, unknown> = {
         email,
         role,
         displayName,
         createdAt: new Date().toISOString(),
-      });
+      };
+
+      // 学生の場合、教師IDを設定
+      if (role === 'student' && teacherId) {
+        userData.teacherId = teacherId;
+      }
+
+      await setDoc(doc(db, 'users', firebaseUser.uid), userData);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Sign up failed';
       setError(errorMessage);

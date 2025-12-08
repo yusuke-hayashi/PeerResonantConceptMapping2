@@ -276,3 +276,133 @@ export async function deleteTopic(topicId: string): Promise<void> {
   const docRef = doc(db, 'topics', topicId);
   await deleteDoc(docRef);
 }
+
+/**
+ * User role type
+ */
+export type UserRole = 'teacher' | 'student';
+
+/**
+ * User interface
+ */
+export interface User {
+  id: string;
+  email: string;
+  role: UserRole;
+  displayName: string;
+  teacherId?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Get all teachers
+ */
+export async function getTeachers(): Promise<User[]> {
+  const usersRef = collection(db, 'users');
+  const q = query(
+    usersRef,
+    where('role', '==', 'teacher'),
+    orderBy('displayName', 'asc')
+  );
+
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+    createdAt: convertTimestamp(doc.data().createdAt),
+    updatedAt: convertTimestamp(doc.data().updatedAt),
+  })) as User[];
+}
+
+/**
+ * Get students for a specific teacher
+ */
+export async function getStudentsByTeacher(teacherId: string): Promise<User[]> {
+  const usersRef = collection(db, 'users');
+  const q = query(
+    usersRef,
+    where('role', '==', 'student'),
+    where('teacherId', '==', teacherId),
+    orderBy('displayName', 'asc')
+  );
+
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+    createdAt: convertTimestamp(doc.data().createdAt),
+    updatedAt: convertTimestamp(doc.data().updatedAt),
+  })) as User[];
+}
+
+/**
+ * Get a single user by ID
+ */
+export async function getUser(userId: string): Promise<User | null> {
+  const docRef = doc(db, 'users', userId);
+  const docSnap = await getDoc(docRef);
+
+  if (!docSnap.exists()) {
+    return null;
+  }
+
+  const data = docSnap.data();
+  return {
+    id: docSnap.id,
+    ...data,
+    createdAt: convertTimestamp(data.createdAt),
+    updatedAt: convertTimestamp(data.updatedAt),
+  } as User;
+}
+
+/**
+ * Update a user's teacherId
+ */
+export async function assignStudentToTeacher(
+  studentId: string,
+  teacherId: string
+): Promise<void> {
+  const docRef = doc(db, 'users', studentId);
+  await updateDoc(docRef, {
+    teacherId,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/**
+ * Remove student from teacher
+ */
+export async function removeStudentFromTeacher(studentId: string): Promise<void> {
+  const docRef = doc(db, 'users', studentId);
+  await updateDoc(docRef, {
+    teacherId: null,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/**
+ * Get all students without a teacher
+ */
+export async function getUnassignedStudents(): Promise<User[]> {
+  const usersRef = collection(db, 'users');
+  // teacherId が存在しない、または null の学生を取得
+  // Firestoreでは null のフィールドに対するクエリが制限されるため、
+  // 全学生を取得してフィルタリングする
+  const q = query(
+    usersRef,
+    where('role', '==', 'student'),
+    orderBy('displayName', 'asc')
+  );
+
+  const snapshot = await getDocs(q);
+  const students = snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+    createdAt: convertTimestamp(doc.data().createdAt),
+    updatedAt: convertTimestamp(doc.data().updatedAt),
+  })) as User[];
+
+  // teacherIdがないものをフィルタ
+  return students.filter(s => !s.teacherId);
+}

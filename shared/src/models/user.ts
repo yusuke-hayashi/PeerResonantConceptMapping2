@@ -17,6 +17,7 @@ export interface User {
   email: string;
   role: UserRole;
   displayName: string;
+  teacherId?: string; // For students: the ID of their teacher
   createdAt: Date;
   updatedAt: Date;
 }
