@@ -14,7 +14,7 @@ import type {
 } from './firestore';
 
 const LLM_ENDPOINT = 'http://127.0.0.1:1234/v1/chat/completions';
-const LLM_MODEL = 'lmstudio-community/gemma-3-4b-it-GGUF';
+const LLM_MODEL = 'openai/gpt-oss-20b';
 
 interface LLMResponse {
   choices: {
