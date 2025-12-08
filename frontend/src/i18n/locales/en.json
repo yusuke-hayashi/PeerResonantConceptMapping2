@@ -220,5 +220,23 @@
     "selectStudentsToGrant": "Select students to share with",
     "llmUnavailable": "Vocabulary adjustment service unavailable",
     "llmError": "Error during vocabulary adjustment"
+  },
+  "seed": {
+    "title": "Create Test Data",
+    "description": "Create test data for development. This will create 1 teacher, 3 students, 1 topic, and 4 concept maps.",
+    "dataToCreate": "Data to Create",
+    "users": "Users",
+    "teacher": "Teacher",
+    "student": "Student",
+    "students": "Students",
+    "topic": "Topic",
+    "referenceMap": "Reference Map",
+    "studentMaps": "Student Maps",
+    "credentials": "Login Credentials",
+    "role": "Role",
+    "createData": "Create Test Data",
+    "seeding": "Creating...",
+    "logs": "Logs",
+    "goToLogin": "Go to Login"
   }
 }

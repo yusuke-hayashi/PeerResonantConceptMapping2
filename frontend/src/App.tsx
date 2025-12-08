@@ -12,7 +12,10 @@ import { ComparisonsPage } from './pages/ComparisonsPage';
 import { ComparisonViewPage } from './pages/ComparisonViewPage';
 import { StudentsPage } from './pages/StudentsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { SeedPage } from './pages/SeedPage';
 import './App.css';
+
+const isDev = import.meta.env.DEV;
 
 function App() {
   return (
@@ -21,6 +24,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
+          {isDev && <Route path="/seed" element={<SeedPage />} />}
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
               <Route path="/" element={<DashboardPage />} />

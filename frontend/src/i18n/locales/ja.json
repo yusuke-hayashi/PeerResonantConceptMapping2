@@ -220,5 +220,23 @@
     "selectStudentsToGrant": "公開する学生を選択",
     "llmUnavailable": "語彙調整サービスが利用できません",
     "llmError": "語彙調整でエラーが発生しました"
+  },
+  "seed": {
+    "title": "テストデータ作成",
+    "description": "開発用のテストデータを作成します。教師1人、学生3人、トピック1つ、概念マップ4つを作成します。",
+    "dataToCreate": "作成するデータ",
+    "users": "ユーザー",
+    "teacher": "教師",
+    "student": "学生",
+    "students": "学生",
+    "topic": "トピック",
+    "referenceMap": "見本マップ",
+    "studentMaps": "学生マップ",
+    "credentials": "ログイン情報",
+    "role": "役割",
+    "createData": "テストデータを作成",
+    "seeding": "作成中...",
+    "logs": "ログ",
+    "goToLogin": "ログインページへ"
   }
 }
