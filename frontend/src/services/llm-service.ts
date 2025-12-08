@@ -13,7 +13,9 @@ import type {
   ComparisonResult,
 } from './firestore';
 
-const LLM_ENDPOINT = 'http://127.0.0.1:1234/v1/chat/completions';
+// 開発環境ではViteプロキシ経由でLM Studioにアクセス（CORS回避）
+const LLM_ENDPOINT = '/api/llm/v1/chat/completions';
+const LLM_MODELS_ENDPOINT = '/api/llm/v1/models';
 const LLM_MODEL = 'openai/gpt-oss-20b';
 
 interface LLMResponse {
@@ -383,7 +385,7 @@ export async function compareMaps(
  */
 export async function checkLLMAvailability(): Promise<boolean> {
   try {
-    const response = await fetch('http://127.0.0.1:1234/v1/models', {
+    const response = await fetch(LLM_MODELS_ENDPOINT, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
