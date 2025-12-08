@@ -18,16 +18,16 @@ function ConceptNodeComponent({ data }: NodeProps) {
   const isNoun = nodeData.nodeType === 'noun';
   const borderRadius = isNoun ? 0 : 12;
 
-  // ノードの中心に透明なハンドルを配置
+  // ノードの中心に小さな透明ハンドルを配置（ドラッグを妨げない）
   const centerHandleStyle = {
     background: 'transparent',
     border: 'none',
-    width: '100%',
-    height: '100%',
+    width: 10,
+    height: 10,
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    borderRadius: 0,
+    pointerEvents: 'none' as const,
   };
 
   return (
@@ -51,12 +51,14 @@ function ConceptNodeComponent({ data }: NodeProps) {
         type="target"
         position={Position.Left}
         style={centerHandleStyle}
+        isConnectable
       />
       <div>{nodeData.label}</div>
       <Handle
         type="source"
         position={Position.Right}
         style={centerHandleStyle}
+        isConnectable
       />
     </div>
   );
