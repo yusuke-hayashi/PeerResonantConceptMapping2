@@ -2,7 +2,7 @@
 
 ## 現在の状況
 
-タスク1〜12まで完了。バックエンドのコアサービス、Cloudflare Workers REST API、およびフロントエンドの基本構造を実装済み。
+タスク1〜15まで完了。バックエンドのコアサービス、Cloudflare Workers REST API、およびフロントエンドのトピック管理・概念マップエディタを実装済み。
 
 ## 完了したタスク
 
@@ -27,6 +27,23 @@
   - ProtectedRoute, Header, Navigation, Layout
   - LoginPage, DashboardPage, NotFoundPage
   - React Router統合, ロール別メニュー表示
+- [x] 13. 認証UIの実装
+  - サインアップページ（SignUpPage）
+  - Firebase Auth統合
+- [x] 14. トピック管理UIの実装
+  - TopicsPage（トピック一覧）
+  - TopicDialog（作成・編集）
+  - トピックCRUD（getTopic, updateTopic, deleteTopic）
+  - MapsPageにトピックフィルター追加
+  - マップ作成時のトピック紐付け
+- [x] 15. 概念マップエディタUIの実装
+  - ConceptMapEditor（ReactFlowベース）
+  - AddNodeDialog（ノード追加ダイアログ）
+  - ノードの作成・編集・削除
+  - リンクの作成・編集・削除
+  - Shift+クリックで複数選択
+  - 中心から中心へのエッジ接続
+  - ドラッグ＆ドロップでノード移動
 
 ## テスト結果
 
@@ -109,10 +126,10 @@
 
 ## 次のステップ
 
-タスク13から順に実装を継続:
-1. 認証UIの実装（13）- ログインページ改善、サインアップ
-2. トピック管理UIの実装（14）
-3. 概念マップエディタUIの実装（15）
+タスク16から順に実装を継続:
+1. 比較ビューアUIの実装（16）
+2. 学生管理UIの実装（17）
+3. 権限管理UIの実装（18）
 
 ## 課題・注意事項
 
@@ -126,9 +143,10 @@
 PeerResonantConceptMapping2/
 ├── frontend/              # React + TypeScript (Vite)
 │   └── src/
-│       ├── components/    # ProtectedRoute, Header, Navigation, Layout
-│       ├── pages/         # LoginPage, DashboardPage, NotFoundPage
+│       ├── components/    # ProtectedRoute, Header, Navigation, Layout, ConceptMapEditor, TopicDialog
+│       ├── pages/         # LoginPage, SignUpPage, DashboardPage, MapsPage, MapEditorPage, TopicsPage, NotFoundPage
 │       ├── config/        # Firebase設定
+│       ├── services/      # firestore.ts（Firestore CRUD）
 │       └── contexts/      # AuthContext
 ├── workers/               # Cloudflare Workers (Hono)
 │   └── src/
