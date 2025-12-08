@@ -863,3 +863,46 @@ body {
   margin: 4px 0 0;
   font-weight: 500;
 }
+
+/* Create map dialog */
+.create-map-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  padding: 24px;
+  min-width: 400px;
+  max-width: 500px;
+  z-index: 1001;
+}
+
+.create-map-dialog h3 {
+  margin: 0 0 20px;
+  color: #333;
+}
+
+.create-map-dialog .form-group {
+  margin-bottom: 16px;
+}
+
+.create-map-dialog select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  background-color: white;
+}
+
+.create-map-dialog select:focus {
+  outline: none;
+  border-color: #1a73e8;
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+}
+
+.create-map-dialog input {
+  width: 100%;
+}

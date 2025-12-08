@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { CreateMapDialog } from '../components/CreateMapDialog';
 import {
   getUserMaps,
   deleteMap,
@@ -25,6 +26,7 @@ export function MapsPage() {
   const [selectedTopicId, setSelectedTopicId] = useState<string>(topicIdFromUrl || '');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -90,11 +92,12 @@ export function MapsPage() {
   }
 
   const handleCreateMap = () => {
-    if (selectedTopicId) {
-      navigate(`/maps/new?topicId=${selectedTopicId}`);
-    } else {
-      navigate('/maps/new');
-    }
+    setCreateDialogOpen(true);
+  };
+
+  const handleCreateMapConfirm = (topicId: string, title: string) => {
+    setCreateDialogOpen(false);
+    navigate(`/maps/new?topicId=${topicId}&title=${encodeURIComponent(title)}`);
   };
 
   const handleTopicChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -170,6 +173,14 @@ export function MapsPage() {
           ))}
         </div>
       )}
+
+      <CreateMapDialog
+        isOpen={createDialogOpen}
+        topics={topics}
+        defaultTopicId={selectedTopicId}
+        onClose={() => setCreateDialogOpen(false)}
+        onCreate={handleCreateMapConfirm}
+      />
     </div>
   );
 }

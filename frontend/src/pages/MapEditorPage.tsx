@@ -18,10 +18,11 @@ export function MapEditorPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const topicIdFromUrl = searchParams.get('topicId');
+  const titleFromUrl = searchParams.get('title');
   const { user } = useAuth();
   const isNew = id === 'new';
 
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState(titleFromUrl || '');
   const [nodes, setNodes] = useState<MapNode[]>([]);
   const [links, setLinks] = useState<MapLink[]>([]);
   const [loading, setLoading] = useState(!isNew);
