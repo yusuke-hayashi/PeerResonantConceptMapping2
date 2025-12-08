@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Color palettes for node types
@@ -28,6 +29,7 @@ interface AddNodeDialogProps {
  * Dialog for adding a new node
  */
 export function AddNodeDialog({ isOpen, position, onClose, onAdd }: AddNodeDialogProps) {
+  const { t } = useTranslation();
   const [label, setLabel] = useState('');
   const [nodeType, setNodeType] = useState<'noun' | 'verb'>('noun');
   const [selectedColor, setSelectedColor] = useState(NOUN_COLORS[0]);
@@ -70,36 +72,36 @@ export function AddNodeDialog({ isOpen, position, onClose, onAdd }: AddNodeDialo
           top: `${position.y}px`,
         }}
       >
-        <h3>Add Node</h3>
+        <h3>{t('editor.addNode')}</h3>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="nodeLabel">Label</label>
+            <label htmlFor="nodeLabel">{t('editor.nodeLabel')}</label>
             <input
               type="text"
               id="nodeLabel"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
-              placeholder="Enter label"
+              placeholder={t('editor.enterNodeLabel')}
               autoFocus
             />
           </div>
 
           <div className="form-group">
-            <label>Type</label>
+            <label>{t('editor.nodeType')}</label>
             <div className="type-buttons">
               <button
                 type="button"
                 className={`type-button ${nodeType === 'noun' ? 'active noun' : ''}`}
                 onClick={() => handleTypeChange('noun')}
               >
-                Noun
+                {t('editor.noun')}
               </button>
               <button
                 type="button"
                 className={`type-button ${nodeType === 'verb' ? 'active verb' : ''}`}
                 onClick={() => handleTypeChange('verb')}
               >
-                Verb
+                {t('editor.verb')}
               </button>
             </div>
           </div>
@@ -121,10 +123,10 @@ export function AddNodeDialog({ isOpen, position, onClose, onAdd }: AddNodeDialo
 
           <div className="dialog-actions">
             <button type="button" className="cancel-button" onClick={handleClose}>
-              Cancel
+              {t('common.cancel')}
             </button>
             <button type="submit" className="add-button" disabled={!label.trim()}>
-              Add
+              {t('editor.addNode')}
             </button>
           </div>
         </form>

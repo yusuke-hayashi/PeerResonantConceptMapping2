@@ -1,10 +1,12 @@
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 
 /**
  * Navigation component with role-based menu items
  */
 export function Navigation() {
+  const { t } = useTranslation();
   const { isTeacher } = useAuth();
 
   return (
@@ -12,7 +14,7 @@ export function Navigation() {
       <ul className="nav-list">
         <li>
           <NavLink to="/" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-            Dashboard
+            {t('nav.dashboard')}
           </NavLink>
         </li>
         <li>
@@ -20,7 +22,7 @@ export function Navigation() {
             to="/maps"
             className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
           >
-            My Maps
+            {t('nav.maps')}
           </NavLink>
         </li>
         {isTeacher && (
@@ -30,7 +32,7 @@ export function Navigation() {
                 to="/topics"
                 className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
               >
-                Topics
+                {t('nav.topics')}
               </NavLink>
             </li>
             <li>
@@ -46,7 +48,7 @@ export function Navigation() {
                 to="/students"
                 className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
               >
-                Students
+                {t('nav.students')}
               </NavLink>
             </li>
           </>

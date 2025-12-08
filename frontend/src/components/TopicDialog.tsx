@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Topic } from '../services/firestore';
 
 interface TopicDialogProps {
@@ -12,6 +13,7 @@ interface TopicDialogProps {
  * Dialog for creating or editing a topic
  */
 export function TopicDialog({ isOpen, topic, onClose, onSave }: TopicDialogProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
 
@@ -43,39 +45,39 @@ export function TopicDialog({ isOpen, topic, onClose, onSave }: TopicDialogProps
         className="topic-dialog"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3>{isEdit ? 'Edit Topic' : 'Create Topic'}</h3>
+        <h3>{isEdit ? t('topics.editTopic') : t('topics.createTopic')}</h3>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="topic-name">Topic Name</label>
+            <label htmlFor="topic-name">{t('topics.topicName')}</label>
             <input
               id="topic-name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Enter topic name"
+              placeholder={t('topics.enterTopicName')}
               autoFocus
             />
           </div>
           <div className="form-group">
-            <label htmlFor="topic-description">Description (optional)</label>
+            <label htmlFor="topic-description">{t('topics.topicDescription')} ({t('common.optional')})</label>
             <textarea
               id="topic-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Enter topic description"
+              placeholder={t('topics.enterTopicDescription')}
               rows={3}
             />
           </div>
           <div className="dialog-actions">
             <button type="button" className="cancel-button" onClick={onClose}>
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
               className="add-button"
               disabled={!name.trim()}
             >
-              {isEdit ? 'Update' : 'Create'}
+              {isEdit ? t('common.save') : t('common.create')}
             </button>
           </div>
         </form>

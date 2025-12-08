@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import {
   getStudentsByTeacher,
@@ -12,6 +13,7 @@ import {
  * Students management page (for teachers only)
  */
 export function StudentsPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [myStudents, setMyStudents] = useState<User[]>([]);
   const [unassignedStudents, setUnassignedStudents] = useState<User[]>([]);
@@ -34,7 +36,9 @@ export function StudentsPage() {
       setUnassignedStudents(unassigned);
     } catch (err) {
       console.error('Failed to load students:', err);
-      setError('Failed to load students');
+      // より詳細なエラーメッセージを表示
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load students';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -62,7 +66,7 @@ export function StudentsPage() {
   };
 
   const handleRemoveStudent = async (studentId: string) => {
-    if (!confirm('Are you sure you want to remove this student from your class?')) {
+    if (!confirm(t('students.removeConfirm'))) {
       return;
     }
 
@@ -76,14 +80,14 @@ export function StudentsPage() {
       }
     } catch (err) {
       console.error('Failed to remove student:', err);
-      setError('Failed to remove student');
+      setError(t('errors.failedToDelete'));
     }
   };
 
   if (!isTeacher) {
     return (
       <div className="students-page">
-        <p className="error-message">Only teachers can access this page.</p>
+        <p className="error-message">{t('students.teacherOnly')}</p>
       </div>
     );
   }
@@ -91,7 +95,7 @@ export function StudentsPage() {
   if (loading) {
     return (
       <div className="students-page">
-        <p>Loading students...</p>
+        <p>{t('students.loadingStudents')}</p>
       </div>
     );
   }
@@ -99,17 +103,17 @@ export function StudentsPage() {
   return (
     <div className="students-page">
       <div className="students-header">
-        <h2>My Students</h2>
+        <h2>{t('students.myStudents')}</h2>
       </div>
 
       {error && <p className="error-message">{error}</p>}
 
       <section className="students-section">
-        <h3>Current Students ({myStudents.length})</h3>
+        <h3>{t('students.currentStudents')} ({myStudents.length})</h3>
         {myStudents.length === 0 ? (
           <div className="empty-state">
-            <p>No students assigned yet.</p>
-            <p>Add students from the list below.</p>
+            <p>{t('students.noStudentsAssigned')}</p>
+            <p>{t('students.addStudentsHint')}</p>
           </div>
         ) : (
           <div className="students-grid">
@@ -119,7 +123,7 @@ export function StudentsPage() {
                   <h4>{student.displayName}</h4>
                   <p className="student-email">{student.email}</p>
                   <p className="student-date">
-                    Joined: {student.createdAt.toLocaleDateString()}
+                    {t('students.joined')}: {student.createdAt.toLocaleDateString()}
                   </p>
                 </div>
                 <div className="student-actions">
@@ -127,7 +131,7 @@ export function StudentsPage() {
                     className="remove-button"
                     onClick={() => handleRemoveStudent(student.id)}
                   >
-                    Remove
+                    {t('students.removeFromClass')}
                   </button>
                 </div>
               </div>
@@ -137,10 +141,10 @@ export function StudentsPage() {
       </section>
 
       <section className="students-section">
-        <h3>Available Students ({unassignedStudents.length})</h3>
+        <h3>{t('students.availableStudents')} ({unassignedStudents.length})</h3>
         {unassignedStudents.length === 0 ? (
           <div className="empty-state">
-            <p>No unassigned students available.</p>
+            <p>{t('students.noUnassignedStudents')}</p>
           </div>
         ) : (
           <div className="students-grid">
@@ -150,7 +154,7 @@ export function StudentsPage() {
                   <h4>{student.displayName}</h4>
                   <p className="student-email">{student.email}</p>
                   <p className="student-date">
-                    Joined: {student.createdAt.toLocaleDateString()}
+                    {t('students.joined')}: {student.createdAt.toLocaleDateString()}
                   </p>
                 </div>
                 <div className="student-actions">
@@ -158,7 +162,7 @@ export function StudentsPage() {
                     className="add-student-button"
                     onClick={() => handleAddStudent(student.id)}
                   >
-                    Add to My Class
+                    {t('students.addToClass')}
                   </button>
                 </div>
               </div>

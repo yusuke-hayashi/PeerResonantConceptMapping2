@@ -1,17 +1,19 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 
 /**
  * Dashboard page with role-based welcome message and quick links
  */
 export function DashboardPage() {
+  const { t } = useTranslation();
   const { user, isTeacher } = useAuth();
 
   return (
     <div className="dashboard-page">
-      <h2>Welcome, {user?.displayName}!</h2>
+      <h2>{t('dashboard.welcome')}, {user?.displayName}!</h2>
       <p className="dashboard-role">
-        You are logged in as a <strong>{isTeacher ? 'Teacher' : 'Student'}</strong>
+        {t('auth.role')}: <strong>{isTeacher ? t('auth.teacher') : t('auth.student')}</strong>
       </p>
 
       <div className="quick-links">
@@ -19,24 +21,24 @@ export function DashboardPage() {
         <ul className="quick-links-list">
           <li>
             <Link to="/maps" className="quick-link">
-              View My Concept Maps
+              {t('maps.title')}
             </Link>
           </li>
           {isTeacher && (
             <>
               <li>
                 <Link to="/topics" className="quick-link">
-                  Manage Topics
+                  {t('topics.title')}
                 </Link>
               </li>
               <li>
                 <Link to="/comparisons" className="quick-link">
-                  Create Comparisons
+                  Comparisons
                 </Link>
               </li>
               <li>
                 <Link to="/students" className="quick-link">
-                  View Students
+                  {t('students.title')}
                 </Link>
               </li>
             </>

@@ -1,5 +1,6 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { Link, Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { getTeachers, type User } from '../services/firestore';
 
@@ -9,6 +10,7 @@ type UserRole = 'teacher' | 'student';
  * Sign up page component
  */
 export function SignUpPage() {
+  const { t } = useTranslation();
   const { user, loading, error, signUp } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -51,19 +53,19 @@ export function SignUpPage() {
 
     // Validate passwords match
     if (password !== confirmPassword) {
-      setValidationError('Passwords do not match');
+      setValidationError(t('errors.passwordsDoNotMatch'));
       return;
     }
 
     // Validate password length
     if (password.length < 6) {
-      setValidationError('Password must be at least 6 characters');
+      setValidationError(t('errors.passwordTooShort'));
       return;
     }
 
     // Validate teacher selection for students
     if (role === 'student' && !teacherId) {
-      setValidationError('Please select your teacher');
+      setValidationError(t('errors.pleaseSelectTeacher'));
       return;
     }
 
@@ -80,7 +82,7 @@ export function SignUpPage() {
   if (loading) {
     return (
       <div className="login-container">
-        <p>Loading...</p>
+        <p>{t('common.loading')}</p>
       </div>
     );
   }
@@ -88,64 +90,64 @@ export function SignUpPage() {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h1 className="login-title">Create Account</h1>
-        <p className="login-subtitle">Sign up to get started</p>
+        <h1 className="login-title">{t('auth.createAccount')}</h1>
+        <p className="login-subtitle">{t('auth.signUpToGetStarted')}</p>
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
-            <label htmlFor="displayName">Display Name</label>
+            <label htmlFor="displayName">{t('auth.displayName')}</label>
             <input
               type="text"
               id="displayName"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Enter your name"
+              placeholder={t('auth.displayNamePlaceholder')}
               required
               disabled={isSubmitting}
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t('auth.email')}</label>
             <input
               type="email"
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
+              placeholder={t('auth.emailPlaceholder')}
               required
               disabled={isSubmitting}
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">{t('auth.password')}</label>
             <input
               type="password"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter password (min 6 characters)"
+              placeholder={t('auth.passwordPlaceholder')}
               required
               disabled={isSubmitting}
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
+            <label htmlFor="confirmPassword">{t('auth.confirmPassword')}</label>
             <input
               type="password"
               id="confirmPassword"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm your password"
+              placeholder={t('auth.confirmPasswordPlaceholder')}
               required
               disabled={isSubmitting}
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="role">Role</label>
+            <label htmlFor="role">{t('auth.role')}</label>
             <select
               id="role"
               value={role}
@@ -157,14 +159,14 @@ export function SignUpPage() {
               }}
               disabled={isSubmitting}
             >
-              <option value="student">Student</option>
-              <option value="teacher">Teacher</option>
+              <option value="student">{t('auth.student')}</option>
+              <option value="teacher">{t('auth.teacher')}</option>
             </select>
           </div>
 
           {role === 'student' && (
             <div className="form-group">
-              <label htmlFor="teacher">Your Teacher</label>
+              <label htmlFor="teacher">{t('auth.yourTeacher')}</label>
               <select
                 id="teacher"
                 value={teacherId}
@@ -173,7 +175,7 @@ export function SignUpPage() {
                 required
               >
                 <option value="">
-                  {loadingTeachers ? 'Loading teachers...' : 'Select your teacher'}
+                  {loadingTeachers ? t('auth.loadingTeachers') : t('auth.selectTeacher')}
                 </option>
                 {teachers.map((teacher) => (
                   <option key={teacher.id} value={teacher.id}>
@@ -182,7 +184,7 @@ export function SignUpPage() {
                 ))}
               </select>
               {teachers.length === 0 && !loadingTeachers && (
-                <p className="form-hint">No teachers available yet.</p>
+                <p className="form-hint">{t('auth.noTeachersAvailable')}</p>
               )}
             </div>
           )}
@@ -192,12 +194,12 @@ export function SignUpPage() {
           )}
 
           <button type="submit" className="login-button" disabled={isSubmitting}>
-            {isSubmitting ? 'Creating account...' : 'Sign Up'}
+            {isSubmitting ? t('auth.creatingAccount') : t('auth.signUp')}
           </button>
         </form>
 
         <p className="signup-link">
-          Already have an account? <Link to="/login">Sign in</Link>
+          {t('auth.alreadyHaveAccount')} <Link to="/login">{t('auth.signIn')}</Link>
         </p>
       </div>
     </div>

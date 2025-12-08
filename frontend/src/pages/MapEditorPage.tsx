@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { ConceptMapEditor } from '../components/ConceptMapEditor';
 import {
@@ -14,6 +15,7 @@ import {
  * Map editor page
  */
 export function MapEditorPage() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -42,18 +44,18 @@ export function MapEditorPage() {
           setNodes(loadedMap.nodes);
           setLinks(loadedMap.links);
         } else {
-          setError('Map not found');
+          setError(t('errors.mapNotFound'));
         }
       } catch (err) {
         console.error('Failed to load map:', err);
-        setError('Failed to load map');
+        setError(t('errors.failedToLoad'));
       } finally {
         setLoading(false);
       }
     }
 
     loadMap();
-  }, [id, isNew]);
+  }, [id, isNew, t]);
 
   const handleChange = useCallback((newNodes: MapNode[], newLinks: MapLink[]) => {
     setNodes(newNodes);
@@ -68,9 +70,10 @@ export function MapEditorPage() {
       setSaving(true);
       setError(null);
 
+      const mapTitle = title || t('maps.untitledMap');
       if (isNew) {
-        const newMapId = await createMap(user.id, title || 'Untitled Map', topicIdFromUrl || 'default');
-        await updateMap(newMapId, { title: title || 'Untitled Map', nodes, links });
+        const newMapId = await createMap(user.id, mapTitle, topicIdFromUrl || 'default');
+        await updateMap(newMapId, { title: mapTitle, nodes, links });
         navigate(`/maps/${newMapId}`, { replace: true });
       } else if (id) {
         await updateMap(id, { title, nodes, links });
@@ -78,7 +81,7 @@ export function MapEditorPage() {
       }
     } catch (err) {
       console.error('Failed to save map:', err);
-      setError('Failed to save map');
+      setError(t('errors.failedToSave'));
     } finally {
       setSaving(false);
     }
@@ -86,7 +89,7 @@ export function MapEditorPage() {
 
   const handleBack = () => {
     if (hasChanges) {
-      if (!confirm('You have unsaved changes. Are you sure you want to leave?')) {
+      if (!confirm(t('editor.unsavedChanges') || 'You have unsaved changes. Are you sure you want to leave?')) {
         return;
       }
     }
@@ -96,7 +99,7 @@ export function MapEditorPage() {
   if (loading) {
     return (
       <div className="map-editor-page">
-        <p>Loading map...</p>
+        <p>{t('common.loading')}</p>
       </div>
     );
   }
@@ -105,7 +108,7 @@ export function MapEditorPage() {
     return (
       <div className="map-editor-page">
         <p className="error-message">{error}</p>
-        <button onClick={() => navigate('/maps')}>Back to Maps</button>
+        <button onClick={() => navigate('/maps')}>{t('common.back')}</button>
       </div>
     );
   }
@@ -114,7 +117,7 @@ export function MapEditorPage() {
     <div className="map-editor-page">
       <div className="editor-toolbar">
         <button className="back-button" onClick={handleBack}>
-          &larr; Back
+          &larr; {t('common.back')}
         </button>
         <input
           type="text"
@@ -124,14 +127,14 @@ export function MapEditorPage() {
             setTitle(e.target.value);
             setHasChanges(true);
           }}
-          placeholder="Map title"
+          placeholder={t('maps.mapTitle')}
         />
         <button
           className="save-button"
           onClick={handleSave}
           disabled={saving}
         >
-          {saving ? 'Saving...' : 'Save'}
+          {saving ? t('editor.saving') : t('common.save')}
         </button>
       </div>
 

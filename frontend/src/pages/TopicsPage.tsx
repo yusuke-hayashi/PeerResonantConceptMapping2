@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { TopicDialog } from '../components/TopicDialog';
 import {
@@ -14,6 +15,7 @@ import {
  * Topics management page
  */
 export function TopicsPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -31,11 +33,11 @@ export function TopicsPage() {
       setTopics(loadedTopics);
     } catch (err) {
       console.error('Failed to load topics:', err);
-      setError('Failed to load topics');
+      setError(t('errors.failedToLoad'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     loadTopics();
@@ -52,16 +54,16 @@ export function TopicsPage() {
   };
 
   const handleDeleteTopic = async (topicId: string) => {
-    if (!confirm('Are you sure you want to delete this topic?')) {
+    if (!confirm(t('topics.deleteConfirm'))) {
       return;
     }
 
     try {
       await deleteTopic(topicId);
-      setTopics((prev) => prev.filter((t) => t.id !== topicId));
+      setTopics((prev) => prev.filter((tp) => tp.id !== topicId));
     } catch (err) {
       console.error('Failed to delete topic:', err);
-      setError('Failed to delete topic');
+      setError(t('errors.failedToDelete'));
     }
   };
 
@@ -72,10 +74,10 @@ export function TopicsPage() {
       if (editingTopic) {
         await updateTopic(editingTopic.id, { name, description });
         setTopics((prev) =>
-          prev.map((t) =>
-            t.id === editingTopic.id
-              ? { ...t, name, description, updatedAt: new Date() }
-              : t
+          prev.map((tp) =>
+            tp.id === editingTopic.id
+              ? { ...tp, name, description, updatedAt: new Date() }
+              : tp
           )
         );
       } else {
@@ -92,7 +94,7 @@ export function TopicsPage() {
       }
     } catch (err) {
       console.error('Failed to save topic:', err);
-      setError('Failed to save topic');
+      setError(t('errors.failedToSave'));
     }
   };
 
@@ -103,7 +105,7 @@ export function TopicsPage() {
   if (loading) {
     return (
       <div className="topics-page">
-        <p>Loading topics...</p>
+        <p>{t('topics.loadingTopics')}</p>
       </div>
     );
   }
@@ -111,10 +113,10 @@ export function TopicsPage() {
   return (
     <div className="topics-page">
       <div className="topics-header">
-        <h2>Topics</h2>
+        <h2>{t('topics.title')}</h2>
         {isTeacher && (
           <button className="create-button" onClick={handleCreateTopic}>
-            + New Topic
+            + {t('topics.newTopic')}
           </button>
         )}
       </div>
@@ -123,8 +125,8 @@ export function TopicsPage() {
 
       {topics.length === 0 ? (
         <div className="empty-state">
-          <p>No topics yet.</p>
-          {isTeacher && <p>Click "New Topic" to create one.</p>}
+          <p>{t('topics.noTopics')}</p>
+          {isTeacher && <p>{t('topics.createFirstTopicHint')}</p>}
         </div>
       ) : (
         <div className="topics-grid">
@@ -139,7 +141,7 @@ export function TopicsPage() {
                   <p className="topic-description">{topic.description}</p>
                 )}
                 <p className="topic-date">
-                  Created: {topic.createdAt.toLocaleDateString()}
+                  {topic.createdAt.toLocaleDateString()}
                 </p>
               </div>
               {isTeacher && (
@@ -151,7 +153,7 @@ export function TopicsPage() {
                       handleEditTopic(topic);
                     }}
                   >
-                    Edit
+                    {t('common.edit')}
                   </button>
                   <button
                     className="delete-button"
@@ -160,7 +162,7 @@ export function TopicsPage() {
                       handleDeleteTopic(topic.id);
                     }}
                   >
-                    Delete
+                    {t('common.delete')}
                   </button>
                 </div>
               )}

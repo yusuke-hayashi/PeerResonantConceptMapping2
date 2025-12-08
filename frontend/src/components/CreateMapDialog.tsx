@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Topic } from '../services/firestore';
 
 interface CreateMapDialogProps {
@@ -19,13 +20,14 @@ export function CreateMapDialog({
   onClose,
   onCreate,
 }: CreateMapDialogProps) {
+  const { t } = useTranslation();
   const [selectedTopicId, setSelectedTopicId] = useState(defaultTopicId || '');
   const [title, setTitle] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedTopicId) {
-      onCreate(selectedTopicId, title.trim() || 'Untitled Map');
+      onCreate(selectedTopicId, title.trim() || t('maps.untitledMap'));
       setTitle('');
       setSelectedTopicId(defaultTopicId || '');
     }
@@ -45,17 +47,17 @@ export function CreateMapDialog({
         className="create-map-dialog"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3>Create New Map</h3>
+        <h3>{t('maps.createMap')}</h3>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="map-topic">Topic (required)</label>
+            <label htmlFor="map-topic">{t('maps.selectTopic')} ({t('common.required')})</label>
             <select
               id="map-topic"
               value={selectedTopicId}
               onChange={(e) => setSelectedTopicId(e.target.value)}
               required
             >
-              <option value="">Select a topic...</option>
+              <option value="">{t('maps.selectTopic')}...</option>
               {topics.map((topic) => (
                 <option key={topic.id} value={topic.id}>
                   {topic.name}
@@ -64,25 +66,25 @@ export function CreateMapDialog({
             </select>
           </div>
           <div className="form-group">
-            <label htmlFor="map-title">Title (optional)</label>
+            <label htmlFor="map-title">{t('maps.mapTitle')} ({t('common.optional')})</label>
             <input
               id="map-title"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter map title"
+              placeholder={t('maps.enterMapTitle')}
             />
           </div>
           <div className="dialog-actions">
             <button type="button" className="cancel-button" onClick={handleClose}>
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
               className="add-button"
               disabled={!selectedTopicId}
             >
-              Create
+              {t('common.create')}
             </button>
           </div>
         </form>
