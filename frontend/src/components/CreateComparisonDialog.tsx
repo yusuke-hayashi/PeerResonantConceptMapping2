@@ -151,34 +151,59 @@ export function CreateComparisonDialog({
 
       // 比較結果を生成
       const results = [];
-      const processedPairs = new Set<string>();
 
-      for (let i = 0; i < targetMaps.length; i++) {
-        for (let j = i + 1; j < targetMaps.length; j++) {
-          const map1 = targetMaps[i];
-          const map2 = targetMaps[j];
-          const pairKey = [map1.id, map2.id].sort().join('-');
-
-          if (processedPairs.has(pairKey)) continue;
-          processedPairs.add(pairKey);
+      // teacher_to_allモードの場合は、教師マップと各学生マップのみを比較
+      if (selectedMode === 'teacher_to_all' && referenceMap) {
+        const studentTargetMaps = targetMaps.filter((m) => m.id !== referenceMap.id);
+        for (let i = 0; i < studentTargetMaps.length; i++) {
+          const studentMap = studentTargetMaps[i];
 
           setProcessingStatus(
-            `${t('comparisons.comparing')} (${results.length + 1}/${Math.floor(
-              (targetMaps.length * (targetMaps.length - 1)) / 2
-            )})`
+            `${t('comparisons.comparing')} (${i + 1}/${studentTargetMaps.length})`
           );
 
           const result = await compareMaps(
-            map1.nodes,
-            map1.links,
-            map2.nodes,
-            map2.links,
-            map1.id,
-            map2.id,
-            referenceMap?.nodes,
-            referenceMap?.links
+            referenceMap.nodes,
+            referenceMap.links,
+            studentMap.nodes,
+            studentMap.links,
+            referenceMap.id,
+            studentMap.id,
+            referenceMap.nodes,
+            referenceMap.links
           );
           results.push(result);
+        }
+      } else {
+        // その他のモードは全ペアを比較
+        const processedPairs = new Set<string>();
+        for (let i = 0; i < targetMaps.length; i++) {
+          for (let j = i + 1; j < targetMaps.length; j++) {
+            const map1 = targetMaps[i];
+            const map2 = targetMaps[j];
+            const pairKey = [map1.id, map2.id].sort().join('-');
+
+            if (processedPairs.has(pairKey)) continue;
+            processedPairs.add(pairKey);
+
+            setProcessingStatus(
+              `${t('comparisons.comparing')} (${results.length + 1}/${Math.floor(
+                (targetMaps.length * (targetMaps.length - 1)) / 2
+              )})`
+            );
+
+            const result = await compareMaps(
+              map1.nodes,
+              map1.links,
+              map2.nodes,
+              map2.links,
+              map1.id,
+              map2.id,
+              referenceMap?.nodes,
+              referenceMap?.links
+            );
+            results.push(result);
+          }
         }
       }
 

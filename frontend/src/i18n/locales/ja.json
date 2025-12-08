@@ -219,7 +219,11 @@
     "managePermissions": "公開設定を管理",
     "selectStudentsToGrant": "公開する学生を選択",
     "llmUnavailable": "語彙調整サービスが利用できません",
-    "llmError": "語彙調整でエラーが発生しました"
+    "llmError": "語彙調整でエラーが発生しました",
+    "missingConcepts": "学生に不足している概念",
+    "missingConceptsDesc": "教師の見本マップにあって、学生のマップにない概念です",
+    "missingPropositions": "学生に不足している命題",
+    "missingPropositionsDesc": "教師の見本マップにあって、学生のマップにないリンクです"
   },
   "seed": {
     "title": "テストデータ作成",

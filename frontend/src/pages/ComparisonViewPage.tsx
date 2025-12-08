@@ -202,6 +202,61 @@ export function ComparisonViewPage() {
             </div>
           </div>
 
+          {/* Missing concepts from student (unique to teacher map) */}
+          {currentResult.uniqueNodesMap1.length > 0 && (
+            <div className="missing-concepts">
+              <h3>{t('comparisons.missingConcepts')}</h3>
+              <p className="missing-description">{t('comparisons.missingConceptsDesc')}</p>
+              <ul className="missing-list">
+                {currentResult.uniqueNodesMap1.map((nodeId) => {
+                  const node = map1?.nodes.find((n) => n.id === nodeId);
+                  const adjusted = currentResult.adjustedNodes1.find(
+                    (a) => a.nodeId === nodeId
+                  );
+                  return (
+                    <li key={nodeId} className="missing-item">
+                      <span className={`node-type ${node?.type || 'noun'}`}>
+                        {node?.type === 'verb' ? '動詞' : '名詞'}
+                      </span>
+                      {adjusted?.adjustedLabel || node?.label}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+
+          {/* Missing propositions from student (unique links to teacher map) */}
+          {currentResult.uniqueLinksMap1.length > 0 && (
+            <div className="missing-propositions">
+              <h3>{t('comparisons.missingPropositions')}</h3>
+              <p className="missing-description">{t('comparisons.missingPropositionsDesc')}</p>
+              <ul className="missing-list">
+                {currentResult.uniqueLinksMap1.map((linkId) => {
+                  const link = map1?.links.find((l) => l.id === linkId);
+                  const sourceNode = map1?.nodes.find(
+                    (n) => n.id === link?.sourceNodeId
+                  );
+                  const targetNode = map1?.nodes.find(
+                    (n) => n.id === link?.targetNodeId
+                  );
+                  if (!sourceNode || !targetNode) return null;
+                  return (
+                    <li key={linkId} className="missing-item proposition">
+                      <span className={`node-label ${sourceNode.type}`}>
+                        {sourceNode.label}
+                      </span>
+                      <span className="arrow">→</span>
+                      <span className={`node-label ${targetNode.type}`}>
+                        {targetNode.label}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+
           {/* Vocabulary adjustments table */}
           <div className="vocabulary-adjustments">
             <h3>{t('comparisons.adjustedLabel')}</h3>

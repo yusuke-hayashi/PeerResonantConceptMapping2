@@ -219,7 +219,11 @@
     "managePermissions": "Manage Sharing",
     "selectStudentsToGrant": "Select students to share with",
     "llmUnavailable": "Vocabulary adjustment service unavailable",
-    "llmError": "Error during vocabulary adjustment"
+    "llmError": "Error during vocabulary adjustment",
+    "missingConcepts": "Missing Concepts",
+    "missingConceptsDesc": "Concepts in the teacher's reference map that are missing from the student's map",
+    "missingPropositions": "Missing Propositions",
+    "missingPropositionsDesc": "Links in the teacher's reference map that are missing from the student's map"
   },
   "seed": {
     "title": "Create Test Data",
