@@ -33,7 +33,7 @@ export function DashboardPage() {
               </li>
               <li>
                 <Link to="/comparisons" className="quick-link">
-                  Comparisons
+                  {t('nav.comparisons')}
                 </Link>
               </li>
               <li>

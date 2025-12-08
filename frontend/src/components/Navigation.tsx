@@ -40,7 +40,7 @@ export function Navigation() {
                 to="/comparisons"
                 className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
               >
-                Comparisons
+                {t('nav.comparisons')}
               </NavLink>
             </li>
             <li>
