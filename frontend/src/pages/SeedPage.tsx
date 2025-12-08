@@ -118,7 +118,7 @@ export function SeedPage() {
         };
       });
 
-      const mapRef = await addDoc(collection(db, 'conceptMaps'), {
+      const mapRef = await addDoc(collection(db, 'concept_maps'), {
         title: map.title,
         topicId,
         ownerId,
@@ -150,6 +150,16 @@ export function SeedPage() {
     }
   };
 
+  const signInAsUser = async (email: string, password: string): Promise<boolean> => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      return true;
+    } catch {
+      addLog('error', `Failed to sign in as ${email}`);
+      return false;
+    }
+  };
+
   const handleSeed = async () => {
     setIsSeeding(true);
     setLogs([]);
@@ -176,14 +186,21 @@ export function SeedPage() {
         return;
       }
 
-      // Step 2: Link students to teacher
+      // Sign in as teacher to perform teacher-only operations
+      addLog('info', 'Signing in as teacher...');
+      if (!(await signInAsUser('teacher@example.com', 'teacher123'))) {
+        setIsSeeding(false);
+        return;
+      }
+
+      // Step 2: Link students to teacher (teacher needs to do this)
       for (const user of seedUsers) {
         if (user.role === 'student' && userIds[user.email]) {
           await updateStudentTeacher(userIds[user.email], teacherId);
         }
       }
 
-      // Step 3: Create topic
+      // Step 3: Create topic (as teacher)
       addLog('info', 'Creating topic...');
       const topicId = await createTopic(teacherId);
       setProgress((prev) => ({ ...prev, current: prev.current + 1 }));
@@ -194,20 +211,27 @@ export function SeedPage() {
         return;
       }
 
-      // Step 4: Create teacher's reference map
+      // Step 4: Create teacher's reference map (as teacher)
       addLog('info', 'Creating teacher reference map...');
       await createMap(teacherMap, teacherId, topicId);
       setProgress((prev) => ({ ...prev, current: prev.current + 1 }));
 
-      // Step 5: Create student maps
+      // Step 5: Create student maps (need to sign in as each student)
       addLog('info', 'Creating student maps...');
       for (const studentMap of studentMaps) {
         const studentId = userIds[studentMap.ownerEmail];
         if (studentId) {
-          await createMap(studentMap, studentId, topicId);
+          // Sign in as the student to create their map
+          const studentUser = seedUsers.find(u => u.email === studentMap.ownerEmail);
+          if (studentUser && (await signInAsUser(studentUser.email, studentUser.password))) {
+            await createMap(studentMap, studentId, topicId);
+          }
         }
         setProgress((prev) => ({ ...prev, current: prev.current + 1 }));
       }
+
+      // Sign out at the end
+      await auth.signOut();
 
       addLog('success', 'Seed data creation completed!');
       addLog('info', `Teacher login: teacher@example.com / teacher123`);

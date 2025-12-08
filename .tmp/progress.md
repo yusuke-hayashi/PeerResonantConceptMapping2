@@ -3,6 +3,7 @@
 ## 現在の状況
 
 タスク1〜16まで完了。バックエンドのコアサービス、Cloudflare Workers REST API、およびフロントエンドのトピック管理・概念マップエディタ・比較ビューアUIを実装済み。
+Firestoreセキュリティルールをデプロイし、テストデータ作成機能を実装・テスト完了。
 
 ## 完了したタスク
 
@@ -139,14 +140,29 @@
 タスク17から順に実装を継続:
 1. 学生管理UIの実装（17）- 既に実装済み
 2. 権限管理UIの実装（18）- 比較ビューアに統合済み
-3. テストデータ作成（光合成のプロセス）
+3. テストデータ作成（光合成のプロセス）- **実装済み**
 4. 統合テストの実施
+
+### テストデータ作成ページ
+
+開発環境で http://localhost:5173/seed にアクセスすると、以下のテストデータを一括作成可能:
+
+| ユーザー | メール | パスワード |
+|---------|--------|------------|
+| 教師 | teacher@example.com | teacher123 |
+| 学生1 | student1@example.com | student123 |
+| 学生2 | student2@example.com | student123 |
+| 学生3 | student3@example.com | student123 |
+
+トピック「光合成のプロセス」と4つの概念マップ（見本1つ + 学生3つ）が作成される。
 
 ## 課題・注意事項
 
 - Cloudflare WorkersからローカルLM Studioへのアクセスは開発環境でのみ可能
 - 本番環境では公開LLMエンドポイントが必要
 - Firebase Admin SDKの本番設定が必要
+- LLMへのアクセスはViteプロキシ経由（CORS回避）: `/api/llm/*` → `localhost:1234`
+- Firestoreコレクション名は`concept_maps`, `comparison_permissions`（アンダースコア区切り）
 
 ## プロジェクト構造
 
