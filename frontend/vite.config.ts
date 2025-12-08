@@ -11,6 +11,13 @@ export default defineConfig({
         target: 'http://127.0.0.1:1234',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/llm/, ''),
+        // LLMの処理が遅いため、タイムアウトを5分に延長
+        configure: (proxy) => {
+          proxy.on('proxyReq', (_proxyReq, _req, _res) => {
+            // タイムアウトを5分に設定
+          });
+        },
+        timeout: 300000, // 5分
       },
     },
   },

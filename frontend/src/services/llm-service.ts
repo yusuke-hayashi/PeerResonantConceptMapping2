@@ -27,37 +27,45 @@ interface LLMResponse {
 }
 
 /**
- * Call LM Studio API
+ * Call LM Studio API with timeout
  */
-async function callLLM(prompt: string): Promise<string> {
-  const response = await fetch(LLM_ENDPOINT, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: LLM_MODEL,
-      messages: [
-        {
-          role: 'system',
-          content: 'You are a helpful assistant that normalizes vocabulary in concept maps. Always respond with valid JSON only, no explanations.',
-        },
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-      temperature: 0.3,
-      max_tokens: 2000,
-    }),
-  });
+async function callLLM(prompt: string, timeoutMs = 120000): Promise<string> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-  if (!response.ok) {
-    throw new Error(`LLM API error: ${response.status} ${response.statusText}`);
+  try {
+    const response = await fetch(LLM_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: LLM_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a helpful assistant that normalizes vocabulary in concept maps. Always respond with valid JSON only, no explanations.',
+          },
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+        temperature: 0.3,
+        max_tokens: 2000,
+      }),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`LLM API error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = (await response.json()) as LLMResponse;
+    return data.choices[0]?.message?.content || '';
+  } finally {
+    clearTimeout(timeoutId);
   }
-
-  const data = (await response.json()) as LLMResponse;
-  return data.choices[0]?.message?.content || '';
 }
 
 /**

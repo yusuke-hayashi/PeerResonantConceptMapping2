@@ -53,7 +53,7 @@ export function ComparisonMapView({
 
   // Convert nodes with highlighting
   const reactFlowNodes = useMemo((): Node[] => {
-    return nodes.map((node) => {
+    return nodes.map((node, index) => {
       const isMatched = matchedNodeIds.includes(node.id);
       const isUnique = uniqueNodeIds.includes(node.id);
       const adjustedLabel = adjustedLabelMap.get(node.id);
@@ -66,14 +66,23 @@ export function ComparisonMapView({
         highlightColor = '#F59E0B'; // orange
       }
 
+      // 位置が未定義の場合は自動レイアウト（グリッド配置）
+      const defaultPosition = {
+        x: (index % 4) * 200 + 50,
+        y: Math.floor(index / 4) * 150 + 50,
+      };
+      const position = node.position
+        ? { x: node.position.x ?? defaultPosition.x, y: node.position.y ?? defaultPosition.y }
+        : defaultPosition;
+
       return {
         id: node.id,
         type: 'conceptNode',
-        position: { x: node.position.x, y: node.position.y },
+        position,
         data: {
           label: adjustedLabel ? `${node.label} → ${adjustedLabel}` : node.label,
           nodeType: node.type,
-          color: highlightColor || node.style.color,
+          color: highlightColor || node.style?.color || '#3B82F6',
           isHighlighted: isMatched || isUnique,
         },
       };
