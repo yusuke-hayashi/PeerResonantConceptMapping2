@@ -2,7 +2,7 @@
 
 ## 現在の状況
 
-タスク1〜15まで完了。バックエンドのコアサービス、Cloudflare Workers REST API、およびフロントエンドのトピック管理・概念マップエディタを実装済み。
+タスク1〜16まで完了。バックエンドのコアサービス、Cloudflare Workers REST API、およびフロントエンドのトピック管理・概念マップエディタ・比較ビューアUIを実装済み。
 
 ## 完了したタスク
 
@@ -44,6 +44,16 @@
   - Shift+クリックで複数選択
   - 中心から中心へのエッジ接続
   - ドラッグ＆ドロップでノード移動
+- [x] 16. 比較ビューアUIの実装
+  - ComparisonsPage（比較一覧）
+  - CreateComparisonDialog（比較作成ダイアログ）
+  - ComparisonViewPage（比較ビューア）
+  - ComparisonMapView（差分ハイライト付きマップ表示）
+  - PermissionManager（権限管理モーダル）
+  - LLMサービス（LM Studio接続、語彙調整）
+  - Firestoreサービス拡張（Comparison CRUD）
+  - 翻訳キー追加（ja/en）
+  - 4つの比較モード対応（1対1、教師対全学生、学生全体、一部学生）
 
 ## テスト結果
 
@@ -126,10 +136,11 @@
 
 ## 次のステップ
 
-タスク16から順に実装を継続:
-1. 比較ビューアUIの実装（16）
-2. 学生管理UIの実装（17）
-3. 権限管理UIの実装（18）
+タスク17から順に実装を継続:
+1. 学生管理UIの実装（17）- 既に実装済み
+2. 権限管理UIの実装（18）- 比較ビューアに統合済み
+3. テストデータ作成（光合成のプロセス）
+4. 統合テストの実施
 
 ## 課題・注意事項
 
@@ -143,10 +154,10 @@
 PeerResonantConceptMapping2/
 ├── frontend/              # React + TypeScript (Vite)
 │   └── src/
-│       ├── components/    # ProtectedRoute, Header, Navigation, Layout, ConceptMapEditor, TopicDialog
-│       ├── pages/         # LoginPage, SignUpPage, DashboardPage, MapsPage, MapEditorPage, TopicsPage, NotFoundPage
+│       ├── components/    # ProtectedRoute, Header, Navigation, Layout, ConceptMapEditor, TopicDialog, CreateComparisonDialog, ComparisonMapView, PermissionManager
+│       ├── pages/         # LoginPage, SignUpPage, DashboardPage, MapsPage, MapEditorPage, TopicsPage, ComparisonsPage, ComparisonViewPage, StudentsPage, NotFoundPage
 │       ├── config/        # Firebase設定
-│       ├── services/      # firestore.ts（Firestore CRUD）
+│       ├── services/      # firestore.ts（Firestore CRUD）, llm-service.ts（LLM語彙調整）
 │       └── contexts/      # AuthContext
 ├── workers/               # Cloudflare Workers (Hono)
 │   └── src/

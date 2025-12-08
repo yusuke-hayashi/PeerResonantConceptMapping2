@@ -411,3 +411,311 @@ export async function getUnassignedStudents(): Promise<User[]> {
     .filter(s => !s.teacherId)
     .sort((a, b) => a.displayName.localeCompare(b.displayName));
 }
+
+/**
+ * Get maps by topic ID
+ */
+export async function getMapsByTopic(topicId: string): Promise<ConceptMap[]> {
+  const mapsRef = collection(db, 'concept_maps');
+  const q = query(
+    mapsRef,
+    where('topicId', '==', topicId),
+    orderBy('updatedAt', 'desc')
+  );
+
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+    createdAt: convertTimestamp(doc.data().createdAt),
+    updatedAt: convertTimestamp(doc.data().updatedAt),
+  })) as ConceptMap[];
+}
+
+/**
+ * Get multiple maps by IDs
+ */
+export async function getMapsByIds(mapIds: string[]): Promise<ConceptMap[]> {
+  const maps: ConceptMap[] = [];
+  for (const mapId of mapIds) {
+    const map = await getMap(mapId);
+    if (map) {
+      maps.push(map);
+    }
+  }
+  return maps;
+}
+
+// ============================================
+// Comparison Types and Functions
+// ============================================
+
+/**
+ * Comparison mode
+ */
+export type ComparisonMode = 'one_to_one' | 'teacher_to_all' | 'all_students' | 'partial_students';
+
+/**
+ * Node adjustment result
+ */
+export interface NodeAdjustmentResult {
+  nodeId: string;
+  originalLabel: string;
+  adjustedLabel: string;
+  confidence: number;
+}
+
+/**
+ * Link adjustment result
+ */
+export interface LinkAdjustmentResult {
+  linkId: string;
+  originalRelationship: string;
+  adjustedRelationship: string;
+  confidence: number;
+}
+
+/**
+ * Node match
+ */
+export interface NodeMatch {
+  node1Id: string;
+  node2Id: string;
+  originalLabel1: string;
+  originalLabel2: string;
+  adjustedLabel: string;
+  similarity: number;
+}
+
+/**
+ * Link match
+ */
+export interface LinkMatch {
+  link1Id: string;
+  link2Id: string;
+  originalRelationship1: string;
+  originalRelationship2: string;
+  adjustedRelationship: string;
+  similarity: number;
+}
+
+/**
+ * Comparison result for a pair of maps
+ */
+export interface ComparisonResult {
+  map1Id: string;
+  map2Id: string;
+  similarityScore: number;
+  matchedNodes: NodeMatch[];
+  matchedLinks: LinkMatch[];
+  uniqueNodesMap1: string[];
+  uniqueNodesMap2: string[];
+  uniqueLinksMap1: string[];
+  uniqueLinksMap2: string[];
+  adjustedNodes1: NodeAdjustmentResult[];
+  adjustedNodes2: NodeAdjustmentResult[];
+  adjustedLinks1: LinkAdjustmentResult[];
+  adjustedLinks2: LinkAdjustmentResult[];
+}
+
+/**
+ * Comparison interface
+ */
+export interface Comparison {
+  id: string;
+  mode: ComparisonMode;
+  topicId: string;
+  mapIds: string[];
+  createdBy: string;
+  results: ComparisonResult[];
+  createdAt: Date;
+}
+
+/**
+ * Comparison permission interface
+ */
+export interface ComparisonPermission {
+  id: string;
+  comparisonId: string;
+  studentId: string;
+  grantedBy: string;
+  grantedAt: Date;
+}
+
+/**
+ * Get all comparisons created by a teacher
+ */
+export async function getComparisons(teacherId: string): Promise<Comparison[]> {
+  const comparisonsRef = collection(db, 'comparisons');
+  const q = query(
+    comparisonsRef,
+    where('createdBy', '==', teacherId),
+    orderBy('createdAt', 'desc')
+  );
+
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+    createdAt: convertTimestamp(doc.data().createdAt),
+  })) as Comparison[];
+}
+
+/**
+ * Get a single comparison by ID
+ */
+export async function getComparison(comparisonId: string): Promise<Comparison | null> {
+  const docRef = doc(db, 'comparisons', comparisonId);
+  const docSnap = await getDoc(docRef);
+
+  if (!docSnap.exists()) {
+    return null;
+  }
+
+  const data = docSnap.data();
+  return {
+    id: docSnap.id,
+    ...data,
+    createdAt: convertTimestamp(data.createdAt),
+  } as Comparison;
+}
+
+/**
+ * Create a new comparison
+ */
+export async function createComparison(
+  teacherId: string,
+  mode: ComparisonMode,
+  topicId: string,
+  mapIds: string[],
+  results: ComparisonResult[]
+): Promise<string> {
+  const comparisonsRef = collection(db, 'comparisons');
+
+  const newComparison = {
+    mode,
+    topicId,
+    mapIds,
+    createdBy: teacherId,
+    results,
+    createdAt: serverTimestamp(),
+  };
+
+  const docRef = await addDoc(comparisonsRef, newComparison);
+  return docRef.id;
+}
+
+/**
+ * Delete a comparison
+ */
+export async function deleteComparison(comparisonId: string): Promise<void> {
+  const docRef = doc(db, 'comparisons', comparisonId);
+  await deleteDoc(docRef);
+}
+
+/**
+ * Get permissions for a comparison
+ */
+export async function getComparisonPermissions(comparisonId: string): Promise<ComparisonPermission[]> {
+  const permissionsRef = collection(db, 'comparison_permissions');
+  const q = query(
+    permissionsRef,
+    where('comparisonId', '==', comparisonId)
+  );
+
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+    grantedAt: convertTimestamp(doc.data().grantedAt),
+  })) as ComparisonPermission[];
+}
+
+/**
+ * Grant view permission to a student
+ */
+export async function grantComparisonPermission(
+  comparisonId: string,
+  studentId: string,
+  teacherId: string
+): Promise<string> {
+  const permissionsRef = collection(db, 'comparison_permissions');
+
+  const newPermission = {
+    comparisonId,
+    studentId,
+    grantedBy: teacherId,
+    grantedAt: serverTimestamp(),
+  };
+
+  const docRef = await addDoc(permissionsRef, newPermission);
+  return docRef.id;
+}
+
+/**
+ * Revoke view permission from a student
+ */
+export async function revokeComparisonPermission(
+  comparisonId: string,
+  studentId: string
+): Promise<void> {
+  const permissionsRef = collection(db, 'comparison_permissions');
+  const q = query(
+    permissionsRef,
+    where('comparisonId', '==', comparisonId),
+    where('studentId', '==', studentId)
+  );
+
+  const snapshot = await getDocs(q);
+  for (const docSnap of snapshot.docs) {
+    await deleteDoc(docSnap.ref);
+  }
+}
+
+/**
+ * Check if a student has permission to view a comparison
+ */
+export async function hasComparisonPermission(
+  comparisonId: string,
+  studentId: string
+): Promise<boolean> {
+  const permissionsRef = collection(db, 'comparison_permissions');
+  const q = query(
+    permissionsRef,
+    where('comparisonId', '==', comparisonId),
+    where('studentId', '==', studentId)
+  );
+
+  const snapshot = await getDocs(q);
+  return !snapshot.empty;
+}
+
+/**
+ * Get comparisons accessible to a student
+ */
+export async function getStudentAccessibleComparisons(studentId: string): Promise<Comparison[]> {
+  // Get all permissions for this student
+  const permissionsRef = collection(db, 'comparison_permissions');
+  const q = query(
+    permissionsRef,
+    where('studentId', '==', studentId)
+  );
+
+  const permSnapshot = await getDocs(q);
+  const comparisonIds = permSnapshot.docs.map(doc => doc.data().comparisonId);
+
+  if (comparisonIds.length === 0) {
+    return [];
+  }
+
+  // Get all comparisons
+  const comparisons: Comparison[] = [];
+  for (const comparisonId of comparisonIds) {
+    const comparison = await getComparison(comparisonId);
+    if (comparison) {
+      comparisons.push(comparison);
+    }
+  }
+
+  return comparisons.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+}

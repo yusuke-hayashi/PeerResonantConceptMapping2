@@ -8,21 +8,11 @@ import { DashboardPage } from './pages/DashboardPage';
 import { MapsPage } from './pages/MapsPage';
 import { MapEditorPage } from './pages/MapEditorPage';
 import { TopicsPage } from './pages/TopicsPage';
+import { ComparisonsPage } from './pages/ComparisonsPage';
+import { ComparisonViewPage } from './pages/ComparisonViewPage';
 import { StudentsPage } from './pages/StudentsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import './App.css';
-
-/**
- * Placeholder component for routes not yet implemented
- */
-function Placeholder({ title }: { title: string }) {
-  return (
-    <div className="placeholder-page">
-      <h2>{title}</h2>
-      <p>This page is under construction.</p>
-    </div>
-  );
-}
 
 function App() {
   return (
@@ -37,7 +27,8 @@ function App() {
               <Route path="/maps" element={<MapsPage />} />
               <Route path="/maps/:id" element={<MapEditorPage />} />
               <Route path="/topics" element={<TopicsPage />} />
-              <Route path="/comparisons" element={<Placeholder title="Comparisons" />} />
+              <Route path="/comparisons" element={<ComparisonsPage />} />
+              <Route path="/comparisons/:id" element={<ComparisonViewPage />} />
               <Route path="/students" element={<StudentsPage />} />
             </Route>
           </Route>
