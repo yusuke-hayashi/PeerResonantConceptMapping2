@@ -6,6 +6,7 @@ import {
   addEdge,
   applyNodeChanges,
   applyEdgeChanges,
+  SelectionMode,
   type Node,
   type Edge,
   type OnNodesChange,
@@ -317,6 +318,8 @@ export function ConceptMapEditor({
         nodesConnectable={!readOnly}
         elementsSelectable={!readOnly}
         selectionOnDrag
+        selectionMode={SelectionMode.Partial}
+        multiSelectionKeyCode="Shift"
       >
         <Controls />
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
