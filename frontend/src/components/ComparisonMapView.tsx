@@ -103,14 +103,21 @@ export function ComparisonMapView({
         strokeColor = '#F59E0B'; // orange
       }
 
+      // リンクラベルを構築（link.labelがある場合は「何が: relationship」形式）
+      const displayLabel = link.label
+        ? link.relationship
+          ? `${link.label}: ${link.relationship}`
+          : link.label
+        : link.relationship || '';
+
       return {
         id: link.id,
         source: link.sourceNodeId,
         target: link.targetNodeId,
-        label: link.relationship,
+        label: displayLabel,
         type: 'default',
         style: { stroke: strokeColor, strokeWidth: isMatched || isUnique ? 3 : 2 },
-        labelStyle: { fill: strokeColor, fontWeight: isMatched || isUnique ? 600 : 500 },
+        labelStyle: { fill: strokeColor, fontWeight: isMatched || isUnique ? 600 : 500, fontSize: 12 },
         labelBgStyle: { fill: '#fff', fillOpacity: 0.9 },
       };
     });

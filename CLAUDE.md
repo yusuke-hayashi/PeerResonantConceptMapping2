@@ -76,3 +76,12 @@ Peer Resonant Concept Mapping - 教育支援プラットフォーム。学生が
 - 学生は自分のマップのみ閲覧・編集可能
 - 比較結果はデフォルト非公開、教師が明示的に権限付与
 - 同じトピック内の概念マップのみ比較可能
+
+## Link Label Display Rules
+
+マップを表示する際は、リンクのラベル（何が/何を/何に/どこで/いつ）を必ず表示すること。
+
+- エディタ画面（ConceptMapEditor）: `link.label`と`link.relationship`を組み合わせて表示
+- 比較画面（ComparisonMapView）: 同様に`link.label`を表示
+- 表示形式: `{label}: {relationship}`（例: 「何を: 光合成」）
+- `relationship`がない場合は`label`のみ表示
