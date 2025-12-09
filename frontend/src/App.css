@@ -876,6 +876,7 @@ body {
   border-top: 1px solid #e0e0e0;
 }
 
+.topic-actions .secondary-button,
 .topic-actions .edit-button,
 .topic-actions .delete-button {
   flex: 1;
@@ -884,6 +885,15 @@ body {
   border: none;
   cursor: pointer;
   transition: background-color 0.2s;
+}
+
+.topic-actions .secondary-button {
+  color: #5f6368;
+  border-right: 1px solid #e0e0e0;
+}
+
+.topic-actions .secondary-button:hover {
+  background-color: #f1f3f4;
 }
 
 .topic-actions .edit-button {
@@ -901,6 +911,74 @@ body {
 
 .topic-actions .delete-button:hover {
   background-color: #ffebee;
+}
+
+/* Topic maps section */
+.topic-maps-section {
+  border-top: 1px solid #e0e0e0;
+  padding: 16px 20px;
+  background-color: #fafafa;
+}
+
+.topic-maps-section .loading-text {
+  color: #666;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.maps-category {
+  margin-bottom: 16px;
+}
+
+.maps-category:last-child {
+  margin-bottom: 0;
+}
+
+.maps-category h4 {
+  font-size: 0.875rem;
+  color: #333;
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+
+.maps-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.maps-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid #e8e8e8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.maps-list li:last-child {
+  border-bottom: none;
+}
+
+.maps-list a {
+  color: #1a73e8;
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.maps-list a:hover {
+  text-decoration: underline;
+}
+
+.maps-list .map-meta {
+  color: #999;
+  font-size: 0.75rem;
+}
+
+.no-maps-text {
+  color: #999;
+  font-size: 0.875rem;
+  margin: 0;
+  font-style: italic;
 }
 
 /* Topic dialog */

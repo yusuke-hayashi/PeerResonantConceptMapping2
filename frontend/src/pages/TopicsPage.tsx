@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { TopicDialog } from '../components/TopicDialog';
@@ -8,7 +8,9 @@ import {
   createTopic,
   updateTopic,
   deleteTopic,
+  getMapsByTopic,
   type Topic,
+  type ConceptMap,
 } from '../services/firestore';
 
 /**
@@ -23,6 +25,10 @@ export function TopicsPage() {
   const [error, setError] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
+  // マップ一覧の展開状態とマップデータ
+  const [expandedTopicId, setExpandedTopicId] = useState<string | null>(null);
+  const [topicMaps, setTopicMaps] = useState<ConceptMap[]>([]);
+  const [loadingMaps, setLoadingMaps] = useState(false);
 
   const isTeacher = user?.role === 'teacher';
 
@@ -102,6 +108,41 @@ export function TopicsPage() {
     navigate(`/maps?topicId=${topicId}`);
   };
 
+  // マップ一覧の展開/折りたたみを切り替え
+  const handleToggleMaps = async (topicId: string) => {
+    if (expandedTopicId === topicId) {
+      // 閉じる
+      setExpandedTopicId(null);
+      setTopicMaps([]);
+    } else {
+      // 開く
+      setExpandedTopicId(topicId);
+      setLoadingMaps(true);
+      try {
+        const maps = await getMapsByTopic(topicId);
+        setTopicMaps(maps);
+      } catch (err) {
+        console.error('Failed to load maps for topic:', err);
+        setTopicMaps([]);
+      } finally {
+        setLoadingMaps(false);
+      }
+    }
+  };
+
+  // マップを見本マップと学生マップに分類
+  const categorizedMaps = topicMaps.reduce(
+    (acc, map) => {
+      if (map.isReference) {
+        acc.reference.push(map);
+      } else {
+        acc.student.push(map);
+      }
+      return acc;
+    },
+    { reference: [] as ConceptMap[], student: [] as ConceptMap[] }
+  );
+
   if (loading) {
     return (
       <div className="topics-page">
@@ -147,6 +188,17 @@ export function TopicsPage() {
               {isTeacher && (
                 <div className="topic-actions">
                   <button
+                    className="secondary-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggleMaps(topic.id);
+                    }}
+                  >
+                    {expandedTopicId === topic.id
+                      ? t('topics.hideMaps')
+                      : t('topics.showMaps')}
+                  </button>
+                  <button
                     className="edit-button"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -164,6 +216,57 @@ export function TopicsPage() {
                   >
                     {t('common.delete')}
                   </button>
+                </div>
+              )}
+              {/* マップ一覧 */}
+              {expandedTopicId === topic.id && (
+                <div className="topic-maps-section">
+                  {loadingMaps ? (
+                    <p className="loading-text">{t('topics.loadingMaps')}</p>
+                  ) : (
+                    <>
+                      {/* 見本マップ */}
+                      <div className="maps-category">
+                        <h4>{t('topics.referenceMap')}</h4>
+                        {categorizedMaps.reference.length > 0 ? (
+                          <ul className="maps-list">
+                            {categorizedMaps.reference.map((map) => (
+                              <li key={map.id}>
+                                <Link to={`/maps/${map.id}`}>
+                                  {map.title || t('maps.untitledMap')}
+                                </Link>
+                                <span className="map-meta">
+                                  ({map.nodes.length} {t('maps.nodes')}, {map.links.length} {t('maps.links')})
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="no-maps-text">{t('topics.noReferenceMap')}</p>
+                        )}
+                      </div>
+                      {/* 学生マップ */}
+                      <div className="maps-category">
+                        <h4>{t('topics.studentMaps')}</h4>
+                        {categorizedMaps.student.length > 0 ? (
+                          <ul className="maps-list">
+                            {categorizedMaps.student.map((map) => (
+                              <li key={map.id}>
+                                <Link to={`/maps/${map.id}`}>
+                                  {map.title || t('maps.untitledMap')}
+                                </Link>
+                                <span className="map-meta">
+                                  ({map.nodes.length} {t('maps.nodes')}, {map.links.length} {t('maps.links')})
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="no-maps-text">{t('topics.noStudentMaps')}</p>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
             </div>

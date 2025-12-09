@@ -139,7 +139,14 @@
     "mapsCount": "Maps",
     "viewMaps": "View Maps",
     "creatingTopic": "Creating topic...",
-    "updatingTopic": "Updating topic..."
+    "updatingTopic": "Updating topic...",
+    "referenceMap": "Reference Map",
+    "studentMaps": "Student Maps",
+    "noReferenceMap": "No reference map",
+    "noStudentMaps": "No student maps",
+    "showMaps": "Show Maps",
+    "hideMaps": "Hide",
+    "loadingMaps": "Loading maps..."
   },
   "students": {
     "title": "Student Management",

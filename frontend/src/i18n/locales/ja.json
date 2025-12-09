@@ -139,7 +139,14 @@
     "mapsCount": "マップ数",
     "viewMaps": "マップを見る",
     "creatingTopic": "トピックを作成中...",
-    "updatingTopic": "トピックを更新中..."
+    "updatingTopic": "トピックを更新中...",
+    "referenceMap": "見本マップ",
+    "studentMaps": "学生マップ",
+    "noReferenceMap": "見本マップなし",
+    "noStudentMaps": "学生マップなし",
+    "showMaps": "マップ一覧",
+    "hideMaps": "閉じる",
+    "loadingMaps": "マップを読み込み中..."
   },
   "students": {
     "title": "学生管理",
