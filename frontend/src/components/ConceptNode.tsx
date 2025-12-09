@@ -13,7 +13,7 @@ export interface ConceptNodeData extends Record<string, unknown> {
 /**
  * Custom concept node component for React Flow
  */
-function ConceptNodeComponent({ data }: NodeProps) {
+function ConceptNodeComponent({ data, selected }: NodeProps) {
   const nodeData = data as unknown as ConceptNodeData;
   const isNoun = nodeData.nodeType === 'noun';
   const borderRadius = isNoun ? 0 : 12;
@@ -30,9 +30,21 @@ function ConceptNodeComponent({ data }: NodeProps) {
     pointerEvents: 'none' as const,
   };
 
+  // 選択時のスタイル
+  const selectedStyle = selected
+    ? {
+        border: '3px solid #FFD700',
+        boxShadow: '0 0 12px 4px rgba(255, 215, 0, 0.6)',
+        transform: 'scale(1.05)',
+      }
+    : {
+        border: '2px solid rgba(255,255,255,0.3)',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+      };
+
   return (
     <div
-      className="concept-node"
+      className={`concept-node ${selected ? 'selected' : ''}`}
       style={{
         backgroundColor: nodeData.color,
         borderRadius: `${borderRadius}px`,
@@ -42,9 +54,9 @@ function ConceptNodeComponent({ data }: NodeProps) {
         color: '#fff',
         fontWeight: 500,
         fontSize: '14px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-        border: '2px solid rgba(255,255,255,0.3)',
         position: 'relative',
+        transition: 'all 0.2s ease',
+        ...selectedStyle,
       }}
     >
       <Handle
