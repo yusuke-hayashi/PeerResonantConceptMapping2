@@ -114,6 +114,7 @@ export function SeedPage() {
           id: `link-${Date.now()}-${index}`,
           sourceNodeId,
           targetNodeId,
+          label: link.label,
           relationship: link.relationship,
         };
       });
