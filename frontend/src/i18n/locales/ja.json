@@ -103,6 +103,7 @@
     "noun": "名詞",
     "verb": "動詞",
     "relationship": "関係",
+    "linkLabel": "リンクラベル",
     "sourceNode": "始点ノード",
     "targetNode": "終点ノード",
     "enterNodeLabel": "ノードラベルを入力",

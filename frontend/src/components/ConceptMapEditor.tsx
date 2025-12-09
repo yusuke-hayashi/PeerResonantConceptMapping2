@@ -19,7 +19,8 @@ import '@xyflow/react/dist/style.css';
 
 import { ConceptNode, type ConceptNodeData } from './ConceptNode';
 import { AddNodeDialog } from './AddNodeDialog';
-import type { MapNode, MapLink } from '../services/firestore';
+import { AddLinkDialog } from './AddLinkDialog';
+import type { MapNode, MapLink, LinkLabel } from '../services/firestore';
 
 /**
  * Convert internal nodes to Firestore format
@@ -113,6 +114,13 @@ export function ConceptMapEditor({
   const pendingPositionRef = useRef<{ x: number; y: number } | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  const [pendingConnection, setPendingConnection] = useState<{
+    source: string;
+    target: string;
+    sourceLabel: string;
+    targetLabel: string;
+  } | null>(null);
 
   const notifyChange = useCallback(
     (newNodes: Node[], newEdges: Edge[]) => {
@@ -149,26 +157,45 @@ export function ConceptMapEditor({
     (connection) => {
       if (readOnly) return;
 
-      const relationship = prompt('Enter relationship:');
-      if (relationship !== null) {
-        const newEdge: Edge = {
-          id: `e${connection.source}-${connection.target}-${Date.now()}`,
-          source: connection.source!,
-          target: connection.target!,
-          label: relationship,
-          type: 'default',
-          style: { stroke: '#6B7280', strokeWidth: 2 },
-          labelStyle: { fill: '#333', fontWeight: 500 },
-          labelBgStyle: { fill: '#fff', fillOpacity: 0.8 },
-        };
-        setEdges((eds) => {
-          const newEdges = addEdge(newEdge, eds);
-          notifyChange(nodes, newEdges);
-          return newEdges;
-        });
-      }
+      const sourceNode = nodes.find(n => n.id === connection.source);
+      const targetNode = nodes.find(n => n.id === connection.target);
+      const sourceLabel = (sourceNode?.data as ConceptNodeData)?.label || '';
+      const targetLabel = (targetNode?.data as ConceptNodeData)?.label || '';
+
+      setPendingConnection({
+        source: connection.source!,
+        target: connection.target!,
+        sourceLabel,
+        targetLabel,
+      });
+      setLinkDialogOpen(true);
     },
-    [readOnly, nodes, notifyChange]
+    [readOnly, nodes]
+  );
+
+  const handleAddLink = useCallback(
+    (label: LinkLabel, relationship: string) => {
+      if (!pendingConnection) return;
+
+      const newEdge: Edge = {
+        id: `e${pendingConnection.source}-${pendingConnection.target}-${Date.now()}`,
+        source: pendingConnection.source,
+        target: pendingConnection.target,
+        label: relationship || label,
+        data: { linkLabel: label },
+        type: 'default',
+        style: { stroke: '#6B7280', strokeWidth: 2 },
+        labelStyle: { fill: '#333', fontWeight: 500 },
+        labelBgStyle: { fill: '#fff', fillOpacity: 0.8 },
+      };
+      setEdges((eds) => {
+        const newEdges = addEdge(newEdge, eds);
+        notifyChange(nodes, newEdges);
+        return newEdges;
+      });
+      setPendingConnection(null);
+    },
+    [pendingConnection, nodes, notifyChange]
   );
 
   const onDoubleClick = useCallback(
@@ -239,25 +266,19 @@ export function ConceptMapEditor({
       return;
     }
 
-    const relationship = prompt('Enter relationship:');
-    if (relationship !== null) {
-      const newEdge: Edge = {
-        id: `e${selectedNodes[0]}-${selectedNodes[1]}-${Date.now()}`,
-        source: selectedNodes[0],
-        target: selectedNodes[1],
-        label: relationship,
-        type: 'default',
-        style: { stroke: '#6B7280', strokeWidth: 2 },
-        labelStyle: { fill: '#333', fontWeight: 500 },
-        labelBgStyle: { fill: '#fff', fillOpacity: 0.8 },
-      };
-      setEdges((eds) => {
-        const newEdges = addEdge(newEdge, eds);
-        notifyChange(nodes, newEdges);
-        return newEdges;
-      });
-    }
-  }, [selectedNodes, nodes, notifyChange]);
+    const sourceNode = nodes.find(n => n.id === selectedNodes[0]);
+    const targetNode = nodes.find(n => n.id === selectedNodes[1]);
+    const sourceLabel = (sourceNode?.data as ConceptNodeData)?.label || '';
+    const targetLabel = (targetNode?.data as ConceptNodeData)?.label || '';
+
+    setPendingConnection({
+      source: selectedNodes[0],
+      target: selectedNodes[1],
+      sourceLabel,
+      targetLabel,
+    });
+    setLinkDialogOpen(true);
+  }, [selectedNodes, nodes]);
 
   const handleDeleteSelected = useCallback(() => {
     if (selectedNodes.length === 0) {
@@ -331,6 +352,17 @@ export function ConceptMapEditor({
         position={dialogPosition}
         onClose={() => setDialogOpen(false)}
         onAdd={handleAddNode}
+      />
+
+      <AddLinkDialog
+        isOpen={linkDialogOpen}
+        sourceLabel={pendingConnection?.sourceLabel || ''}
+        targetLabel={pendingConnection?.targetLabel || ''}
+        onClose={() => {
+          setLinkDialogOpen(false);
+          setPendingConnection(null);
+        }}
+        onAdd={handleAddLink}
       />
 
       {!readOnly && (

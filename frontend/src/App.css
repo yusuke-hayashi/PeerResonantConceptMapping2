@@ -605,6 +605,102 @@ body {
   cursor: not-allowed;
 }
 
+/* Add link dialog */
+.add-link-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  padding: 24px;
+  min-width: 400px;
+  max-width: 500px;
+  z-index: 1001;
+}
+
+.add-link-dialog h3 {
+  margin: 0 0 16px;
+  color: #333;
+}
+
+.link-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.link-preview .node-label {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.link-preview .node-label.source {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.link-preview .node-label.target {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.link-preview .arrow {
+  color: #6b7280;
+  font-size: 1.25rem;
+}
+
+.link-preview .link-label-preview {
+  padding: 6px 12px;
+  background-color: #fef3c7;
+  color: #92400e;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.label-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.label-button:hover {
+  border-color: #1a73e8;
+  background-color: #f0f7ff;
+}
+
+.label-button.active {
+  border-color: #1a73e8;
+  background-color: #e8f0fe;
+}
+
+.label-description {
+  color: #666;
+  font-size: 0.875rem;
+  margin-left: 12px;
+}
+
 /* Concept map editor */
 .concept-map-editor {
   position: relative;

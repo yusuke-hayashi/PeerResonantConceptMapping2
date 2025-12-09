@@ -103,6 +103,7 @@
     "noun": "Noun",
     "verb": "Verb",
     "relationship": "Relationship",
+    "linkLabel": "Link Label",
     "sourceNode": "Source Node",
     "targetNode": "Target Node",
     "enterNodeLabel": "Enter node label",
