@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, collection, addDoc, serverTimestamp, getDocs, deleteDoc, query, where } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
 import {
   seedUsers,
@@ -26,6 +26,7 @@ export function SeedPage() {
   const navigate = useNavigate();
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [isSeeding, setIsSeeding] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
 
   const addLog = (type: LogEntry['type'], message: string) => {
@@ -258,6 +259,52 @@ export function SeedPage() {
     navigate('/login');
   };
 
+  const handleDeleteData = async () => {
+    if (!confirm('Are you sure you want to delete all test data? This cannot be undone.')) {
+      return;
+    }
+
+    setIsDeleting(true);
+    setLogs([]);
+
+    try {
+      // Sign in as teacher first
+      addLog('info', 'Signing in as teacher...');
+      await signInWithEmailAndPassword(auth, 'teacher@example.com', 'teacher123');
+
+      // Delete comparisons
+      addLog('info', 'Deleting comparisons...');
+      const comparisonsSnapshot = await getDocs(collection(db, 'comparisons'));
+      for (const docSnapshot of comparisonsSnapshot.docs) {
+        await deleteDoc(doc(db, 'comparisons', docSnapshot.id));
+      }
+      addLog('success', `Deleted ${comparisonsSnapshot.size} comparisons`);
+
+      // Delete concept maps
+      addLog('info', 'Deleting concept maps...');
+      const mapsSnapshot = await getDocs(collection(db, 'concept_maps'));
+      for (const docSnapshot of mapsSnapshot.docs) {
+        await deleteDoc(doc(db, 'concept_maps', docSnapshot.id));
+      }
+      addLog('success', `Deleted ${mapsSnapshot.size} concept maps`);
+
+      // Delete topics
+      addLog('info', 'Deleting topics...');
+      const topicsSnapshot = await getDocs(collection(db, 'topics'));
+      for (const docSnapshot of topicsSnapshot.docs) {
+        await deleteDoc(doc(db, 'topics', docSnapshot.id));
+      }
+      addLog('success', `Deleted ${topicsSnapshot.size} topics`);
+
+      await auth.signOut();
+      addLog('success', 'All test data deleted successfully!');
+    } catch (error) {
+      addLog('error', `Delete failed: ${(error as Error).message}`);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="seed-page">
       <div className="seed-container">
@@ -305,9 +352,17 @@ export function SeedPage() {
           <button
             className="seed-button"
             onClick={handleSeed}
-            disabled={isSeeding}
+            disabled={isSeeding || isDeleting}
           >
             {isSeeding ? t('seed.seeding') : t('seed.createData')}
+          </button>
+          <button
+            className="delete-button"
+            onClick={handleDeleteData}
+            disabled={isSeeding || isDeleting}
+            style={{ backgroundColor: '#EF4444', marginLeft: '8px' }}
+          >
+            {isDeleting ? 'Deleting...' : 'Delete All Data'}
           </button>
           <button
             className="login-button"

@@ -55,8 +55,9 @@ service cloud.firestore {
 
     // Concept Maps collection
     match /concept_maps/{mapId} {
-      // Users can read maps they own, or if they are the teacher of the owner
-      allow read: if isAuthenticated() && (
+      // Teachers can list all maps, users can read maps they own
+      allow list: if isTeacher();
+      allow get: if isAuthenticated() && (
         resource.data.ownerId == request.auth.uid ||
         isTeacher()
       );
@@ -64,8 +65,9 @@ service cloud.firestore {
       // Users can create maps for themselves
       allow create: if isAuthenticated() && request.resource.data.ownerId == request.auth.uid;
 
-      // Users can update/delete their own maps
-      allow update, delete: if isAuthenticated() && resource.data.ownerId == request.auth.uid;
+      // Users can update/delete their own maps, teachers can delete any map
+      allow update: if isAuthenticated() && resource.data.ownerId == request.auth.uid;
+      allow delete: if isAuthenticated() && (resource.data.ownerId == request.auth.uid || isTeacher());
     }
 
     // Comparisons collection

@@ -174,18 +174,25 @@ export function createComparisonService(
       }
     }
 
-    // Match links based on adjusted relationships and matched nodes
+    // Match links based on label, adjusted relationships, and matched nodes
     for (const adj1 of adjustment1.links) {
       for (const adj2 of adjustment2.links) {
-        if (
-          adj1.adjustedRelationship.toLowerCase() === adj2.adjustedRelationship.toLowerCase() &&
-          !matchedLinkIds1.has(adj1.linkId) &&
-          !matchedLinkIds2.has(adj2.linkId)
-        ) {
-          const link1 = links1.find((l) => l.id === adj1.linkId);
-          const link2 = links2.find((l) => l.id === adj2.linkId);
+        // 既にマッチ済みならスキップ
+        if (matchedLinkIds1.has(adj1.linkId) || matchedLinkIds2.has(adj2.linkId)) {
+          continue;
+        }
 
-          if (link1 && link2) {
+        const link1 = links1.find((l) => l.id === adj1.linkId);
+        const link2 = links2.find((l) => l.id === adj2.linkId);
+
+        if (link1 && link2) {
+          // labelの比較（何が/何を/何に/どこで/いつ）
+          const labelMatches = link1.label === link2.label;
+          // relationshipの比較（LLM調整済み）
+          const relationshipMatches =
+            adj1.adjustedRelationship.toLowerCase() === adj2.adjustedRelationship.toLowerCase();
+
+          if (labelMatches && relationshipMatches) {
             // Check if source and target nodes are also matched
             const sourceMatched =
               matchedNodeIds1.has(link1.sourceNodeId) && matchedNodeIds2.has(link2.sourceNodeId);
