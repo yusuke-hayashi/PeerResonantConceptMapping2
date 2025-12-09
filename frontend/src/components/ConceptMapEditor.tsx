@@ -120,6 +120,8 @@ export function ConceptMapEditor({
     target: string;
     sourceLabel: string;
     targetLabel: string;
+    sourceType: 'noun' | 'verb';
+    targetType: 'noun' | 'verb';
   } | null>(null);
 
   const notifyChange = useCallback(
@@ -159,14 +161,16 @@ export function ConceptMapEditor({
 
       const sourceNode = nodes.find(n => n.id === connection.source);
       const targetNode = nodes.find(n => n.id === connection.target);
-      const sourceLabel = (sourceNode?.data as ConceptNodeData)?.label || '';
-      const targetLabel = (targetNode?.data as ConceptNodeData)?.label || '';
+      const sourceData = sourceNode?.data as ConceptNodeData | undefined;
+      const targetData = targetNode?.data as ConceptNodeData | undefined;
 
       setPendingConnection({
         source: connection.source!,
         target: connection.target!,
-        sourceLabel,
-        targetLabel,
+        sourceLabel: sourceData?.label || '',
+        targetLabel: targetData?.label || '',
+        sourceType: sourceData?.nodeType || 'noun',
+        targetType: targetData?.nodeType || 'noun',
       });
       setLinkDialogOpen(true);
     },
@@ -174,13 +178,17 @@ export function ConceptMapEditor({
   );
 
   const handleAddLink = useCallback(
-    (label: LinkLabel, relationship: string) => {
+    (label: LinkLabel, relationship: string, swapped: boolean) => {
       if (!pendingConnection) return;
 
+      // swappedがtrueの場合、source/targetを入れ替える
+      const actualSource = swapped ? pendingConnection.target : pendingConnection.source;
+      const actualTarget = swapped ? pendingConnection.source : pendingConnection.target;
+
       const newEdge: Edge = {
-        id: `e${pendingConnection.source}-${pendingConnection.target}-${Date.now()}`,
-        source: pendingConnection.source,
-        target: pendingConnection.target,
+        id: `e${actualSource}-${actualTarget}-${Date.now()}`,
+        source: actualSource,
+        target: actualTarget,
         label: relationship || label,
         data: { linkLabel: label },
         type: 'default',
@@ -268,14 +276,16 @@ export function ConceptMapEditor({
 
     const sourceNode = nodes.find(n => n.id === selectedNodes[0]);
     const targetNode = nodes.find(n => n.id === selectedNodes[1]);
-    const sourceLabel = (sourceNode?.data as ConceptNodeData)?.label || '';
-    const targetLabel = (targetNode?.data as ConceptNodeData)?.label || '';
+    const sourceData = sourceNode?.data as ConceptNodeData | undefined;
+    const targetData = targetNode?.data as ConceptNodeData | undefined;
 
     setPendingConnection({
       source: selectedNodes[0],
       target: selectedNodes[1],
-      sourceLabel,
-      targetLabel,
+      sourceLabel: sourceData?.label || '',
+      targetLabel: targetData?.label || '',
+      sourceType: sourceData?.nodeType || 'noun',
+      targetType: targetData?.nodeType || 'noun',
     });
     setLinkDialogOpen(true);
   }, [selectedNodes, nodes]);
@@ -358,6 +368,8 @@ export function ConceptMapEditor({
         isOpen={linkDialogOpen}
         sourceLabel={pendingConnection?.sourceLabel || ''}
         targetLabel={pendingConnection?.targetLabel || ''}
+        sourceType={pendingConnection?.sourceType || 'noun'}
+        targetType={pendingConnection?.targetType || 'noun'}
         onClose={() => {
           setLinkDialogOpen(false);
           setPendingConnection(null);

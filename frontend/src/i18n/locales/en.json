@@ -115,7 +115,11 @@
     "deleteNodeConfirm": "Are you sure you want to delete this node? Related links will also be deleted.",
     "deleteLinkConfirm": "Are you sure you want to delete this link?",
     "createNode": "Create Node",
-    "creatingNode": "Creating node..."
+    "creatingNode": "Creating node...",
+    "swapDirection": "Swap Direction",
+    "invalidLinkDirection": "Links can only be created from verb nodes to noun nodes",
+    "invalidLinkBothNouns": "Cannot link two noun nodes directly",
+    "invalidLinkBothVerbs": "Cannot link two verb nodes directly"
   },
   "topics": {
     "title": "Topic Management",

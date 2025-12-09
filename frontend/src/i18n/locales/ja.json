@@ -115,7 +115,11 @@
     "deleteNodeConfirm": "このノードを削除してもよろしいですか？関連するリンクも削除されます。",
     "deleteLinkConfirm": "このリンクを削除してもよろしいですか？",
     "createNode": "ノードを作成",
-    "creatingNode": "ノードを作成中..."
+    "creatingNode": "ノードを作成中...",
+    "swapDirection": "向きを入れ替え",
+    "invalidLinkDirection": "リンクは動詞ノードから名詞ノードへのみ作成できます",
+    "invalidLinkBothNouns": "名詞同士を直接リンクすることはできません",
+    "invalidLinkBothVerbs": "動詞同士を直接リンクすることはできません"
   },
   "topics": {
     "title": "トピック管理",
