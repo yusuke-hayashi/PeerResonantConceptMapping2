@@ -87,11 +87,17 @@ function fromMapLinks(mapLinks: MapLink[]): Edge[] {
     id: link.id,
     source: link.sourceNodeId,
     target: link.targetNodeId,
-    label: link.relationship,
+    // ラベルを表示: linkLabel（何が/何を等）を優先、relationshipがあれば併記
+    label: link.label
+      ? link.relationship
+        ? `${link.label}: ${link.relationship}`
+        : link.label
+      : link.relationship || '',
+    data: { linkLabel: link.label },
     type: 'default',
     style: { stroke: '#6B7280', strokeWidth: 2 },
-    labelStyle: { fill: '#333', fontWeight: 500 },
-    labelBgStyle: { fill: '#fff', fillOpacity: 0.8 },
+    labelStyle: { fill: '#333', fontWeight: 500, fontSize: 12 },
+    labelBgStyle: { fill: '#fff', fillOpacity: 0.9 },
   }));
 }
 
