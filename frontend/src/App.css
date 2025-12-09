@@ -465,6 +465,22 @@ body {
   cursor: not-allowed;
 }
 
+.readonly-badge {
+  padding: 6px 12px;
+  background-color: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.title-input[readonly] {
+  background-color: #f9fafb;
+  color: #6b7280;
+  cursor: default;
+}
+
 .editor-container {
   flex: 1;
   border: 1px solid #e0e0e0;

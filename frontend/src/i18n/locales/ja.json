@@ -120,7 +120,9 @@
     "invalidLinkDirection": "リンクは動詞ノードから名詞ノードへのみ作成できます",
     "invalidLinkBothNouns": "名詞同士を直接リンクすることはできません",
     "invalidLinkBothVerbs": "動詞同士を直接リンクすることはできません",
-    "duplicateNounLabel": "この名前の名詞ノードは既に存在します"
+    "duplicateNounLabel": "この名前の名詞ノードは既に存在します",
+    "readOnly": "閲覧専用",
+    "unsavedChanges": "保存されていない変更があります。このページを離れますか？"
   },
   "topics": {
     "title": "トピック管理",

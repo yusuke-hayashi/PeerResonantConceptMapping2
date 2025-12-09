@@ -21,6 +21,7 @@ export function MapEditorPage() {
   const [searchParams] = useSearchParams();
   const topicIdFromUrl = searchParams.get('topicId');
   const titleFromUrl = searchParams.get('title');
+  const fromTopics = searchParams.get('from') === 'topics';
   const { user } = useAuth();
   const isNew = id === 'new';
 
@@ -31,6 +32,8 @@ export function MapEditorPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
+  const [ownerId, setOwnerId] = useState<string | null>(null);
+  const [mapTopicId, setMapTopicId] = useState<string | null>(topicIdFromUrl);
 
   useEffect(() => {
     async function loadMap() {
@@ -43,6 +46,8 @@ export function MapEditorPage() {
           setTitle(loadedMap.title);
           setNodes(loadedMap.nodes);
           setLinks(loadedMap.links);
+          setOwnerId(loadedMap.ownerId);
+          setMapTopicId(loadedMap.topicId);
         } else {
           setError(t('errors.mapNotFound'));
         }
@@ -56,6 +61,10 @@ export function MapEditorPage() {
 
     loadMap();
   }, [id, isNew, t]);
+
+  // 自分のマップかどうか（自分のマップでなければ読み取り専用）
+  const isOwnMap = isNew || (user && ownerId === user.id);
+  const readOnly = !isOwnMap;
 
   const handleChange = useCallback((newNodes: MapNode[], newLinks: MapLink[]) => {
     setNodes(newNodes);
@@ -88,12 +97,17 @@ export function MapEditorPage() {
   };
 
   const handleBack = () => {
-    if (hasChanges) {
+    if (hasChanges && !readOnly) {
       if (!confirm(t('editor.unsavedChanges') || 'You have unsaved changes. Are you sure you want to leave?')) {
         return;
       }
     }
-    navigate('/maps');
+    // トピック画面から来た場合はトピック画面に戻る
+    if (fromTopics) {
+      navigate('/topics');
+    } else {
+      navigate('/maps');
+    }
   };
 
   if (loading) {
@@ -124,18 +138,26 @@ export function MapEditorPage() {
           className="title-input"
           value={title}
           onChange={(e) => {
-            setTitle(e.target.value);
-            setHasChanges(true);
+            if (!readOnly) {
+              setTitle(e.target.value);
+              setHasChanges(true);
+            }
           }}
           placeholder={t('maps.mapTitle')}
+          readOnly={readOnly}
         />
-        <button
-          className="save-button"
-          onClick={handleSave}
-          disabled={saving}
-        >
-          {saving ? t('editor.saving') : t('common.save')}
-        </button>
+        {!readOnly && (
+          <button
+            className="save-button"
+            onClick={handleSave}
+            disabled={saving}
+          >
+            {saving ? t('editor.saving') : t('common.save')}
+          </button>
+        )}
+        {readOnly && (
+          <span className="readonly-badge">{t('editor.readOnly')}</span>
+        )}
       </div>
 
       {error && <p className="error-message">{error}</p>}
@@ -145,6 +167,7 @@ export function MapEditorPage() {
           initialNodes={nodes}
           initialLinks={links}
           onChange={handleChange}
+          readOnly={readOnly}
         />
       </div>
     </div>

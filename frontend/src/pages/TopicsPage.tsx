@@ -232,7 +232,7 @@ export function TopicsPage() {
                           <ul className="maps-list">
                             {categorizedMaps.reference.map((map) => (
                               <li key={map.id}>
-                                <Link to={`/maps/${map.id}`}>
+                                <Link to={`/maps/${map.id}?from=topics`}>
                                   {map.title || t('maps.untitledMap')}
                                 </Link>
                                 <span className="map-meta">
@@ -252,7 +252,7 @@ export function TopicsPage() {
                           <ul className="maps-list">
                             {categorizedMaps.student.map((map) => (
                               <li key={map.id}>
-                                <Link to={`/maps/${map.id}`}>
+                                <Link to={`/maps/${map.id}?from=topics`}>
                                   {map.title || t('maps.untitledMap')}
                                 </Link>
                                 <span className="map-meta">

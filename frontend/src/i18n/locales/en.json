@@ -120,7 +120,9 @@
     "invalidLinkDirection": "Links can only be created from verb nodes to noun nodes",
     "invalidLinkBothNouns": "Cannot link two noun nodes directly",
     "invalidLinkBothVerbs": "Cannot link two verb nodes directly",
-    "duplicateNounLabel": "A noun node with this name already exists"
+    "duplicateNounLabel": "A noun node with this name already exists",
+    "readOnly": "Read Only",
+    "unsavedChanges": "You have unsaved changes. Are you sure you want to leave?"
   },
   "topics": {
     "title": "Topic Management",
