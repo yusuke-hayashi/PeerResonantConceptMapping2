@@ -20,6 +20,12 @@ import { db } from '../config/firebase';
 export type NodeType = 'noun' | 'verb';
 
 /**
+ * Link label type
+ * Based on docs/conceptmap/specification.md
+ */
+export type LinkLabel = '何が' | '何を' | '何に' | 'どこで' | 'いつ';
+
+/**
  * Node shape
  */
 export type NodeShape = 'rectangle' | 'rounded-rectangle';
@@ -59,6 +65,7 @@ export interface MapLink {
   id: string;
   sourceNodeId: string;
   targetNodeId: string;
+  label: LinkLabel;
   relationship: string;
 }
 

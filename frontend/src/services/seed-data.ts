@@ -4,11 +4,18 @@
  *
  * Concept Map Structure:
  * - Noun nodes and Verb nodes are both represented as nodes
- * - Links connect: [Noun] → [Verb] → [Noun]
+ * - Links connect: [Noun] <--(何が)-- [Verb] --(何を)--> [Noun]
  * - A proposition is formed by: Subject(noun) → Action(verb) → Object(noun)
+ *
+ * Link Labels (based on docs/conceptmap/specification.md):
+ * - 何が: Subject of action (動作の主体)
+ * - 何を: Object of action (動作の対象)
+ * - 何に: Recipient/destination (動作の相手・到達先)
+ * - どこで: Location (場所)
+ * - いつ: Time (時間)
  */
 
-import type { NodeType } from './firestore';
+import type { NodeType, LinkLabel } from './firestore';
 
 export interface SeedUser {
   email: string;
@@ -32,6 +39,7 @@ export interface SeedNode {
 export interface SeedLink {
   sourceLabel: string;
   targetLabel: string;
+  label: LinkLabel;
   relationship: string;
 }
 
@@ -114,29 +122,29 @@ export const teacherMap: SeedMap = {
   ],
   links: [
     // 光合成 → 必要とする → 光エネルギー
-    { sourceLabel: '光合成', targetLabel: '必要とする', relationship: '' },
-    { sourceLabel: '必要とする', targetLabel: '光エネルギー', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: '必要とする', label: '何が', relationship: '' },
+    { sourceLabel: '必要とする', targetLabel: '光エネルギー', label: '何を', relationship: '' },
     // 光合成 → 吸収する → 二酸化炭素
-    { sourceLabel: '光合成', targetLabel: '吸収する', relationship: '' },
-    { sourceLabel: '吸収する', targetLabel: '二酸化炭素', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: '吸収する', label: '何が', relationship: '' },
+    { sourceLabel: '吸収する', targetLabel: '二酸化炭素', label: '何を', relationship: '' },
     // 光合成 → 使用する → 水
-    { sourceLabel: '光合成', targetLabel: '使用する', relationship: '' },
-    { sourceLabel: '使用する', targetLabel: '水', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: '使用する', label: '何が', relationship: '' },
+    { sourceLabel: '使用する', targetLabel: '水', label: '何を', relationship: '' },
     // 光合成 → 生成する → グルコース
-    { sourceLabel: '光合成', targetLabel: '生成する', relationship: '' },
-    { sourceLabel: '生成する', targetLabel: 'グルコース', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: '生成する', label: '何が', relationship: '' },
+    { sourceLabel: '生成する', targetLabel: 'グルコース', label: '何を', relationship: '' },
     // 光合成 → 放出する → 酸素
-    { sourceLabel: '光合成', targetLabel: '放出する', relationship: '' },
-    { sourceLabel: '放出する', targetLabel: '酸素', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: '放出する', label: '何が', relationship: '' },
+    { sourceLabel: '放出する', targetLabel: '酸素', label: '何を', relationship: '' },
     // 光合成 → で行われる → 葉緑体
-    { sourceLabel: '光合成', targetLabel: 'で行われる', relationship: '' },
-    { sourceLabel: 'で行われる', targetLabel: '葉緑体', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: 'で行われる', label: '何が', relationship: '' },
+    { sourceLabel: 'で行われる', targetLabel: '葉緑体', label: 'どこで', relationship: '' },
     // 葉緑体 → 含む → クロロフィル
-    { sourceLabel: '葉緑体', targetLabel: '含む', relationship: '' },
-    { sourceLabel: '含む', targetLabel: 'クロロフィル', relationship: '' },
+    { sourceLabel: '葉緑体', targetLabel: '含む', label: '何が', relationship: '' },
+    { sourceLabel: '含む', targetLabel: 'クロロフィル', label: '何を', relationship: '' },
     // クロロフィル → 吸収する2 → 光エネルギー
-    { sourceLabel: 'クロロフィル', targetLabel: '吸収する2', relationship: '' },
-    { sourceLabel: '吸収する2', targetLabel: '光エネルギー', relationship: '' },
+    { sourceLabel: 'クロロフィル', targetLabel: '吸収する2', label: '何が', relationship: '' },
+    { sourceLabel: '吸収する2', targetLabel: '光エネルギー', label: '何を', relationship: '' },
   ],
 };
 
@@ -171,23 +179,23 @@ export const student1Map: SeedMap = {
   ],
   links: [
     // 光合成 → 使う → 太陽光
-    { sourceLabel: '光合成', targetLabel: '使う', relationship: '' },
-    { sourceLabel: '使う', targetLabel: '太陽光', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: '使う', label: '何が', relationship: '' },
+    { sourceLabel: '使う', targetLabel: '太陽光', label: '何を', relationship: '' },
     // 光合成 → 取り込む → CO2
-    { sourceLabel: '光合成', targetLabel: '取り込む', relationship: '' },
-    { sourceLabel: '取り込む', targetLabel: 'CO2', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: '取り込む', label: '何が', relationship: '' },
+    { sourceLabel: '取り込む', targetLabel: 'CO2', label: '何を', relationship: '' },
     // 光合成 → 必要 → 水
-    { sourceLabel: '光合成', targetLabel: '必要', relationship: '' },
-    { sourceLabel: '必要', targetLabel: '水', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: '必要', label: '何が', relationship: '' },
+    { sourceLabel: '必要', targetLabel: '水', label: '何を', relationship: '' },
     // 光合成 → 作る → 糖
-    { sourceLabel: '光合成', targetLabel: '作る', relationship: '' },
-    { sourceLabel: '作る', targetLabel: '糖', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: '作る', label: '何が', relationship: '' },
+    { sourceLabel: '作る', targetLabel: '糖', label: '何を', relationship: '' },
     // 光合成 → 出す → O2
-    { sourceLabel: '光合成', targetLabel: '出す', relationship: '' },
-    { sourceLabel: '出す', targetLabel: 'O2', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: '出す', label: '何が', relationship: '' },
+    { sourceLabel: '出す', targetLabel: 'O2', label: '何を', relationship: '' },
     // 光合成 → で起きる → 葉っぱ
-    { sourceLabel: '光合成', targetLabel: 'で起きる', relationship: '' },
-    { sourceLabel: 'で起きる', targetLabel: '葉っぱ', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: 'で起きる', label: '何が', relationship: '' },
+    { sourceLabel: 'で起きる', targetLabel: '葉っぱ', label: 'どこで', relationship: '' },
   ],
 };
 
@@ -230,32 +238,32 @@ export const student2Map: SeedMap = {
   ],
   links: [
     // 光合成 → 利用する → 光
-    { sourceLabel: '光合成', targetLabel: '利用する', relationship: '' },
-    { sourceLabel: '利用する', targetLabel: '光', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: '利用する', label: '何が', relationship: '' },
+    { sourceLabel: '利用する', targetLabel: '光', label: '何を', relationship: '' },
     // 光合成 → 吸収する → 二酸化炭素
-    { sourceLabel: '光合成', targetLabel: '吸収する', relationship: '' },
-    { sourceLabel: '吸収する', targetLabel: '二酸化炭素', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: '吸収する', label: '何が', relationship: '' },
+    { sourceLabel: '吸収する', targetLabel: '二酸化炭素', label: '何を', relationship: '' },
     // 光合成 → 使用する → 水
-    { sourceLabel: '光合成', targetLabel: '使用する', relationship: '' },
-    { sourceLabel: '使用する', targetLabel: '水', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: '使用する', label: '何が', relationship: '' },
+    { sourceLabel: '使用する', targetLabel: '水', label: '何を', relationship: '' },
     // 光合成 → 作り出す → ブドウ糖
-    { sourceLabel: '光合成', targetLabel: '作り出す', relationship: '' },
-    { sourceLabel: '作り出す', targetLabel: 'ブドウ糖', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: '作り出す', label: '何が', relationship: '' },
+    { sourceLabel: '作り出す', targetLabel: 'ブドウ糖', label: '何を', relationship: '' },
     // 光合成 → 放出する → 酸素
-    { sourceLabel: '光合成', targetLabel: '放出する', relationship: '' },
-    { sourceLabel: '放出する', targetLabel: '酸素', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: '放出する', label: '何が', relationship: '' },
+    { sourceLabel: '放出する', targetLabel: '酸素', label: '何を', relationship: '' },
     // 光合成 → で行われる → 葉緑体
-    { sourceLabel: '光合成', targetLabel: 'で行われる', relationship: '' },
-    { sourceLabel: 'で行われる', targetLabel: '葉緑体', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: 'で行われる', label: '何が', relationship: '' },
+    { sourceLabel: 'で行われる', targetLabel: '葉緑体', label: 'どこで', relationship: '' },
     // 葉緑体 → 持つ → 葉緑素
-    { sourceLabel: '葉緑体', targetLabel: '持つ', relationship: '' },
-    { sourceLabel: '持つ', targetLabel: '葉緑素', relationship: '' },
+    { sourceLabel: '葉緑体', targetLabel: '持つ', label: '何が', relationship: '' },
+    { sourceLabel: '持つ', targetLabel: '葉緑素', label: '何を', relationship: '' },
     // 気孔 → 取り入れる → 二酸化炭素
-    { sourceLabel: '気孔', targetLabel: '取り入れる', relationship: '' },
-    { sourceLabel: '取り入れる', targetLabel: '二酸化炭素', relationship: '' },
+    { sourceLabel: '気孔', targetLabel: '取り入れる', label: 'どこで', relationship: '' },
+    { sourceLabel: '取り入れる', targetLabel: '二酸化炭素', label: '何を', relationship: '' },
     // 気孔 → 放出する2 → 酸素
-    { sourceLabel: '気孔', targetLabel: '放出する2', relationship: '' },
-    { sourceLabel: '放出する2', targetLabel: '酸素', relationship: '' },
+    { sourceLabel: '気孔', targetLabel: '放出する2', label: 'どこで', relationship: '' },
+    { sourceLabel: '放出する2', targetLabel: '酸素', label: '何を', relationship: '' },
   ],
 };
 
@@ -287,20 +295,20 @@ export const student3Map: SeedMap = {
   ],
   links: [
     // 光合成 → あたる → 日光
-    { sourceLabel: '光合成', targetLabel: 'あたる', relationship: '' },
-    { sourceLabel: 'あたる', targetLabel: '日光', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: 'あたる', label: '何が', relationship: '' },
+    { sourceLabel: 'あたる', targetLabel: '日光', label: '何を', relationship: '' },
     // 光合成 → 吸う → 炭酸ガス
-    { sourceLabel: '光合成', targetLabel: '吸う', relationship: '' },
-    { sourceLabel: '吸う', targetLabel: '炭酸ガス', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: '吸う', label: '何が', relationship: '' },
+    { sourceLabel: '吸う', targetLabel: '炭酸ガス', label: '何を', relationship: '' },
     // 光合成 → いる → 水分
-    { sourceLabel: '光合成', targetLabel: 'いる', relationship: '' },
-    { sourceLabel: 'いる', targetLabel: '水分', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: 'いる', label: '何が', relationship: '' },
+    { sourceLabel: 'いる', targetLabel: '水分', label: '何を', relationship: '' },
     // 光合成 → できる → でんぷん
-    { sourceLabel: '光合成', targetLabel: 'できる', relationship: '' },
-    { sourceLabel: 'できる', targetLabel: 'でんぷん', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: 'できる', label: '何が', relationship: '' },
+    { sourceLabel: 'できる', targetLabel: 'でんぷん', label: '何を', relationship: '' },
     // 光合成 → だす → 空気
-    { sourceLabel: '光合成', targetLabel: 'だす', relationship: '' },
-    { sourceLabel: 'だす', targetLabel: '空気', relationship: '' },
+    { sourceLabel: '光合成', targetLabel: 'だす', label: '何が', relationship: '' },
+    { sourceLabel: 'だす', targetLabel: '空気', label: '何を', relationship: '' },
   ],
 };
 

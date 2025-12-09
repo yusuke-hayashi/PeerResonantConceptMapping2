@@ -9,6 +9,20 @@ export const NodeType = {
 export type NodeType = (typeof NodeType)[keyof typeof NodeType];
 
 /**
+ * Link label enum
+ * Based on docs/conceptmap/specification.md
+ */
+export const LinkLabel = {
+  WHAT_SUBJECT: '何が', // Subject of action (動作の主体)
+  WHAT_OBJECT: '何を', // Object of action (動作の対象)
+  WHAT_TO: '何に', // Recipient/destination (動作の相手・到達先)
+  WHERE: 'どこで', // Location (場所)
+  WHEN: 'いつ', // Time (時間)
+} as const;
+
+export type LinkLabel = (typeof LinkLabel)[keyof typeof LinkLabel];
+
+/**
  * Node shape enum
  */
 export const NodeShape = {
@@ -49,12 +63,14 @@ export interface Node {
 
 /**
  * Link interface
+ * Links connect verb nodes to noun nodes with semantic labels
  */
 export interface Link {
   id: string;
   sourceNodeId: string;
   targetNodeId: string;
-  relationship: string;
+  label: LinkLabel; // Semantic role (何が, 何を, etc.)
+  relationship: string; // Optional descriptive text
   metadata?: Record<string, unknown>;
 }
 

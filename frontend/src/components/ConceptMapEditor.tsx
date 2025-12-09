@@ -49,6 +49,7 @@ function toMapLinks(edges: Edge[]): MapLink[] {
     id: edge.id,
     sourceNodeId: edge.source,
     targetNodeId: edge.target,
+    label: (edge.data?.linkLabel as MapLink['label']) || '何を',
     relationship: (edge.label as string) || '',
   }));
 }
