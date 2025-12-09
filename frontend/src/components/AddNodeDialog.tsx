@@ -21,6 +21,7 @@ const VERB_COLORS = [
 interface AddNodeDialogProps {
   isOpen: boolean;
   position: { x: number; y: number };
+  existingNounLabels: string[];
   onClose: () => void;
   onAdd: (label: string, nodeType: 'noun' | 'verb', color: string) => void;
 }
@@ -28,13 +29,17 @@ interface AddNodeDialogProps {
 /**
  * Dialog for adding a new node
  */
-export function AddNodeDialog({ isOpen, position, onClose, onAdd }: AddNodeDialogProps) {
+export function AddNodeDialog({ isOpen, position, existingNounLabels, onClose, onAdd }: AddNodeDialogProps) {
   const { t } = useTranslation();
   const [label, setLabel] = useState('');
   const [nodeType, setNodeType] = useState<'noun' | 'verb'>('noun');
   const [selectedColor, setSelectedColor] = useState(NOUN_COLORS[0]);
 
   const colors = nodeType === 'noun' ? NOUN_COLORS : VERB_COLORS;
+
+  // 名詞ノードの重複チェック（大文字小文字を区別しない）
+  const isDuplicateNoun = nodeType === 'noun' && label.trim() !== '' &&
+    existingNounLabels.some(existing => existing.toLowerCase() === label.trim().toLowerCase());
 
   const handleTypeChange = (type: 'noun' | 'verb') => {
     setNodeType(type);
@@ -43,7 +48,7 @@ export function AddNodeDialog({ isOpen, position, onClose, onAdd }: AddNodeDialo
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (label.trim()) {
+    if (label.trim() && !isDuplicateNoun) {
       onAdd(label.trim(), nodeType, selectedColor);
       setLabel('');
       setNodeType('noun');
@@ -51,6 +56,9 @@ export function AddNodeDialog({ isOpen, position, onClose, onAdd }: AddNodeDialo
       onClose();
     }
   };
+
+  // ボタンの有効/無効判定
+  const isSubmitDisabled = !label.trim() || isDuplicateNoun;
 
   const handleClose = () => {
     setLabel('');
@@ -84,6 +92,11 @@ export function AddNodeDialog({ isOpen, position, onClose, onAdd }: AddNodeDialo
               placeholder={t('editor.enterNodeLabel')}
               autoFocus
             />
+            {isDuplicateNoun && (
+              <div className="link-error-message">
+                {t('editor.duplicateNounLabel')}
+              </div>
+            )}
           </div>
 
           <div className="form-group">
@@ -125,7 +138,7 @@ export function AddNodeDialog({ isOpen, position, onClose, onAdd }: AddNodeDialo
             <button type="button" className="cancel-button" onClick={handleClose}>
               {t('common.cancel')}
             </button>
-            <button type="submit" className="add-button" disabled={!label.trim()}>
+            <button type="submit" className="add-button" disabled={isSubmitDisabled}>
               {t('editor.addNode')}
             </button>
           </div>

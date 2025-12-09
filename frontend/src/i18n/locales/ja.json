@@ -119,7 +119,8 @@
     "swapDirection": "向きを入れ替え",
     "invalidLinkDirection": "リンクは動詞ノードから名詞ノードへのみ作成できます",
     "invalidLinkBothNouns": "名詞同士を直接リンクすることはできません",
-    "invalidLinkBothVerbs": "動詞同士を直接リンクすることはできません"
+    "invalidLinkBothVerbs": "動詞同士を直接リンクすることはできません",
+    "duplicateNounLabel": "この名前の名詞ノードは既に存在します"
   },
   "topics": {
     "title": "トピック管理",

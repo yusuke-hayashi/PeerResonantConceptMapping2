@@ -1,4 +1,4 @@
-import { useCallback, useState, useRef } from 'react';
+import { useCallback, useState, useRef, useMemo } from 'react';
 import {
   ReactFlow,
   Controls,
@@ -123,6 +123,13 @@ export function ConceptMapEditor({
     sourceType: 'noun' | 'verb';
     targetType: 'noun' | 'verb';
   } | null>(null);
+
+  // 既存の名詞ノードラベルを抽出（重複チェック用）
+  const existingNounLabels = useMemo(() => {
+    return nodes
+      .filter((node) => (node.data as ConceptNodeData).nodeType === 'noun')
+      .map((node) => (node.data as ConceptNodeData).label);
+  }, [nodes]);
 
   const notifyChange = useCallback(
     (newNodes: Node[], newEdges: Edge[]) => {
@@ -360,6 +367,7 @@ export function ConceptMapEditor({
       <AddNodeDialog
         isOpen={dialogOpen}
         position={dialogPosition}
+        existingNounLabels={existingNounLabels}
         onClose={() => setDialogOpen(false)}
         onAdd={handleAddNode}
       />

@@ -52,6 +52,7 @@ Peer Resonant Concept Mapping - 教育支援プラットフォーム。学生が
 - `.kiro/specs/peer-concept-mapping/requirements.md` - 要件定義（受入基準を満たすこと）
 - `.kiro/specs/peer-concept-mapping/design.md` - 設計書（インターフェース、データモデル、正しさのプロパティ）
 - `.kiro/specs/peer-concept-mapping/tasks.md` - 実装タスク（チェックリスト形式、完了したらチェック）
+- `docs/conceptmap/specification.md` - 概念マップのデータ構造・制約・ルールの仕様
 
 タスク実行時は`tasks.md`の順序に従い、実装完了後は必ず`tasks.md`のチェックボックスにチェックを入れること（`[ ]` → `[x]`）。
 

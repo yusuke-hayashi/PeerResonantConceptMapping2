@@ -119,7 +119,8 @@
     "swapDirection": "Swap Direction",
     "invalidLinkDirection": "Links can only be created from verb nodes to noun nodes",
     "invalidLinkBothNouns": "Cannot link two noun nodes directly",
-    "invalidLinkBothVerbs": "Cannot link two verb nodes directly"
+    "invalidLinkBothVerbs": "Cannot link two verb nodes directly",
+    "duplicateNounLabel": "A noun node with this name already exists"
   },
   "topics": {
     "title": "Topic Management",
