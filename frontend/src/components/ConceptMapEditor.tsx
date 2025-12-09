@@ -1,4 +1,4 @@
-import { useCallback, useState, useRef, useMemo } from 'react';
+import { useCallback, useState, useRef, useMemo, useEffect } from 'react';
 import {
   ReactFlow,
   Controls,
@@ -13,6 +13,7 @@ import {
   type OnEdgesChange,
   type OnConnect,
   type NodeTypes,
+  type ReactFlowInstance,
   BackgroundVariant,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -59,16 +60,23 @@ function toMapLinks(edges: Edge[]): MapLink[] {
  * Convert Firestore nodes to ReactFlow format
  */
 function fromMapNodes(mapNodes: MapNode[]): Node[] {
-  return mapNodes.map((node) => ({
-    id: node.id,
-    type: 'conceptNode',
-    position: { x: node.position.x, y: node.position.y },
-    data: {
-      label: node.label,
-      nodeType: node.type,
-      color: node.style.color,
-    },
-  }));
+  return mapNodes.map((node) => {
+    // Handle legacy data that may have x/y directly instead of position object
+    const position = node.position
+      ? { x: node.position.x, y: node.position.y }
+      : { x: (node as unknown as { x?: number }).x ?? 0, y: (node as unknown as { y?: number }).y ?? 0 };
+
+    return {
+      id: node.id,
+      type: 'conceptNode',
+      position,
+      data: {
+        label: node.label,
+        nodeType: node.type,
+        color: node.style?.color ?? (node.type === 'noun' ? '#3B82F6' : '#10B981'),
+      },
+    };
+  });
 }
 
 /**
@@ -113,6 +121,7 @@ export function ConceptMapEditor({
   const [dialogPosition, setDialogPosition] = useState({ x: 0, y: 0 });
   const pendingPositionRef = useRef<{ x: number; y: number } | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [pendingConnection, setPendingConnection] = useState<{
@@ -130,6 +139,41 @@ export function ConceptMapEditor({
       .filter((node) => (node.data as ConceptNodeData).nodeType === 'noun')
       .map((node) => (node.data as ConceptNodeData).label);
   }, [nodes]);
+
+  // Sync state when initial data changes (for async loading)
+  // Only update if the data actually changed (compare by length and IDs)
+  const initialNodesKey = useMemo(
+    () => initialNodes.map((n) => n.id).sort().join(','),
+    [initialNodes]
+  );
+  const initialLinksKey = useMemo(
+    () => initialLinks.map((l) => l.id).sort().join(','),
+    [initialLinks]
+  );
+
+  useEffect(() => {
+    if (initialNodes.length === 0) return;
+
+    const newNodes = fromMapNodes(initialNodes);
+    setNodes(newNodes);
+  }, [initialNodesKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (initialLinks.length === 0) return;
+
+    setEdges(fromMapLinks(initialLinks));
+  }, [initialLinksKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Store ReactFlow instance on init
+  const onInit = useCallback((instance: ReactFlowInstance) => {
+    reactFlowInstance.current = instance;
+    // If nodes are already loaded, fit view
+    if (nodes.length > 0) {
+      setTimeout(() => {
+        instance.fitView({ padding: 0.2 });
+      }, 100);
+    }
+  }, [nodes.length]);
 
   const notifyChange = useCallback(
     (newNodes: Node[], newEdges: Edge[]) => {
@@ -343,6 +387,7 @@ export function ConceptMapEditor({
       )}
 
       <ReactFlow
+        key={initialNodesKey}
         nodes={nodes}
         edges={edges}
         onNodesChange={readOnly ? undefined : onNodesChange}
@@ -350,8 +395,10 @@ export function ConceptMapEditor({
         onConnect={readOnly ? undefined : onConnect}
         onDoubleClick={onDoubleClick}
         onSelectionChange={handleSelectionChange}
+        onInit={onInit}
         nodeTypes={nodeTypes}
         fitView
+        fitViewOptions={{ padding: 0.2 }}
         deleteKeyCode={readOnly ? null : 'Delete'}
         nodesDraggable={!readOnly}
         nodesConnectable={!readOnly}

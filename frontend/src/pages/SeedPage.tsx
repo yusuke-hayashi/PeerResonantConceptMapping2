@@ -95,12 +95,23 @@ export function SeedPage() {
     topicId: string
   ): Promise<string | null> => {
     try {
-      // Generate node IDs and create nodes with IDs
+      // Generate node IDs and create nodes with proper structure
       const nodeIdMap = new Map<string, string>();
       const nodesWithIds = map.nodes.map((node, index) => {
         const id = `node-${Date.now()}-${index}`;
         nodeIdMap.set(node.label, id);
-        return { ...node, id };
+        // Convert seed node format (x, y) to MapNode format (position: { x, y })
+        return {
+          id,
+          label: node.label,
+          type: node.type,
+          position: { x: node.x, y: node.y },
+          style: {
+            shape: node.type === 'noun' ? 'rectangle' : 'rounded-rectangle',
+            color: node.type === 'noun' ? '#3B82F6' : '#10B981',
+            borderRadius: node.type === 'noun' ? 0 : 12,
+          },
+        };
       });
 
       // Create links with proper node IDs
