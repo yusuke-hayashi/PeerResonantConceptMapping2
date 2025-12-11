@@ -14,7 +14,9 @@
     "next": "Next",
     "submit": "Submit",
     "required": "Required",
-    "optional": "Optional"
+    "optional": "Optional",
+    "add": "Add",
+    "adding": "Adding..."
   },
   "auth": {
     "login": "Login",
@@ -238,7 +240,14 @@
     "missingConcepts": "Missing Concepts",
     "missingConceptsDesc": "Concepts in the teacher's reference map that are missing from the student's map",
     "missingPropositions": "Missing Propositions",
-    "missingPropositionsDesc": "Links in the teacher's reference map that are missing from the student's map"
+    "missingPropositionsDesc": "Links in the teacher's reference map that are missing from the student's map",
+    "addToMap": "Add to Map",
+    "addNodeConfirm": "Add this node?",
+    "addLinkConfirm": "Add this link?",
+    "addTo": "Add to",
+    "addNodeSuccess": "Node added successfully",
+    "addLinkSuccess": "Link added successfully",
+    "addNodeWithLink": "Adding this node will also add related links"
   },
   "seed": {
     "title": "Create Test Data",

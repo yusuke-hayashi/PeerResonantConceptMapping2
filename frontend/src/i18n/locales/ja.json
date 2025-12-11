@@ -14,7 +14,9 @@
     "next": "次へ",
     "submit": "送信",
     "required": "必須",
-    "optional": "任意"
+    "optional": "任意",
+    "add": "追加",
+    "adding": "追加中..."
   },
   "auth": {
     "login": "ログイン",
@@ -238,7 +240,14 @@
     "missingConcepts": "学生に不足している概念",
     "missingConceptsDesc": "教師の見本マップにあって、学生のマップにない概念です",
     "missingPropositions": "学生に不足している命題",
-    "missingPropositionsDesc": "教師の見本マップにあって、学生のマップにないリンクです"
+    "missingPropositionsDesc": "教師の見本マップにあって、学生のマップにないリンクです",
+    "addToMap": "マップに追加",
+    "addNodeConfirm": "このノードを追加しますか？",
+    "addLinkConfirm": "このリンクを追加しますか？",
+    "addTo": "追加先",
+    "addNodeSuccess": "ノードを追加しました",
+    "addLinkSuccess": "リンクを追加しました",
+    "addNodeWithLink": "このノードを追加すると、関連するリンクも追加されます"
   },
   "seed": {
     "title": "テストデータ作成",

@@ -2085,3 +2085,111 @@ body {
   color: #6B7280;
   font-weight: bold;
 }
+
+/* Add item button in missing items list */
+.missing-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.missing-item .item-label {
+  flex: 1;
+}
+
+.missing-item .link-info {
+  color: #6B7280;
+  font-size: 0.875rem;
+}
+
+.add-item-button {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #3B82F6;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+}
+
+.add-item-button:hover {
+  background: #2563EB;
+}
+
+/* Add to Map Dialog */
+.add-to-map-dialog {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  min-width: 400px;
+  max-width: 90vw;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.add-to-map-dialog h3 {
+  margin-bottom: 16px;
+  font-size: 1.25rem;
+  color: #1F2937;
+}
+
+.add-item-preview {
+  margin-bottom: 16px;
+}
+
+.add-item-preview p {
+  margin-bottom: 12px;
+  color: #4B5563;
+}
+
+.preview-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: #F9FAFB;
+  border-radius: 6px;
+  border: 1px solid #E5E7EB;
+}
+
+.preview-item.node-preview .node-type {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.preview-item.node-preview .node-type.noun {
+  background: #DBEAFE;
+  color: #1E40AF;
+}
+
+.preview-item.node-preview .node-type.verb {
+  background: #FEE2E2;
+  color: #991B1B;
+}
+
+.preview-item.link-preview {
+  flex-wrap: wrap;
+}
+
+.preview-item.link-preview .arrow {
+  color: #6B7280;
+  font-weight: bold;
+}
+
+.target-info {
+  margin-top: 12px;
+  font-size: 0.875rem;
+  color: #6B7280;
+}
+
+.target-info strong {
+  color: #1F2937;
+}

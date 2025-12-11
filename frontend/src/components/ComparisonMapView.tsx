@@ -80,9 +80,9 @@ export function ComparisonMapView({
       // Determine highlight color
       let highlightColor: string | undefined;
       if (isMatched) {
-        highlightColor = '#10B981'; // green
+        highlightColor = '#F59E0B'; // yellow/amber for matched
       } else if (isUnique) {
-        highlightColor = '#F59E0B'; // orange
+        highlightColor = '#EF4444'; // red for unique/missing
       }
 
       // 位置が未定義の場合は自動レイアウト（グリッド配置）
@@ -143,9 +143,9 @@ export function ComparisonMapView({
       // Determine stroke color
       let strokeColor = '#6B7280'; // default gray
       if (isMatched) {
-        strokeColor = '#10B981'; // green
+        strokeColor = '#F59E0B'; // yellow/amber for matched
       } else if (isUnique) {
-        strokeColor = '#F59E0B'; // orange
+        strokeColor = '#EF4444'; // red for unique/missing
       }
 
       // リンクラベルを構築（link.labelがある場合は「何が: relationship」形式）
@@ -194,12 +194,12 @@ export function ComparisonMapView({
 
       <div className="map-legend">
         <span className="legend-item matched">
-          <span className="legend-color" style={{ backgroundColor: '#10B981' }} />
-          Matched
+          <span className="legend-color" style={{ backgroundColor: '#F59E0B' }} />
+          一致
         </span>
         <span className="legend-item unique">
-          <span className="legend-color" style={{ backgroundColor: '#F59E0B' }} />
-          Unique
+          <span className="legend-color" style={{ backgroundColor: '#EF4444' }} />
+          不足
         </span>
       </div>
     </div>

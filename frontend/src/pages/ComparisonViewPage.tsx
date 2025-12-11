@@ -1,15 +1,19 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { ComparisonMapView } from '../components/ComparisonMapView';
 import { PermissionManager } from '../components/PermissionManager';
+import { AddToMapDialog } from '../components/AddToMapDialog';
 import {
   getComparison,
   getMapsByIds,
+  updateMap,
   type Comparison,
   type ConceptMap,
   type ComparisonResult,
+  type MapNode,
+  type MapLink,
 } from '../services/firestore';
 
 /**
@@ -27,6 +31,14 @@ export function ComparisonViewPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showPermissions, setShowPermissions] = useState(false);
+
+  // State for adding nodes/links from comparison
+  const [addingNode, setAddingNode] = useState<MapNode | null>(null);
+  const [addingLink, setAddingLink] = useState<{
+    link: MapLink;
+    source: MapNode;
+    target: MapNode;
+  } | null>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -74,6 +86,111 @@ export function ComparisonViewPage() {
   const handleBack = () => {
     navigate('/comparisons');
   };
+
+  // Check if user can edit map2 (学生のマップ)
+  const canEditMap2 = useMemo(() => {
+    if (!user || !map2) return false;
+    return map2.ownerId === user.id;
+  }, [user, map2]);
+
+  // Handle adding a node to user's map
+  const handleAddNode = useCallback(async () => {
+    if (!addingNode || !map2 || !canEditMap2) return;
+
+    // Create a new node with a new ID based on timestamp
+    const newNode: MapNode = {
+      ...addingNode,
+      id: `node_${Date.now()}`,
+      position: {
+        x: (map2.nodes.length % 4) * 200 + 50,
+        y: Math.floor(map2.nodes.length / 4) * 150 + 50,
+      },
+    };
+
+    const updatedNodes = [...map2.nodes, newNode];
+    await updateMap(map2.id, { nodes: updatedNodes });
+
+    // Update local state
+    setMaps((prev) => {
+      const newMaps = new Map(prev);
+      const updatedMap = { ...map2, nodes: updatedNodes };
+      newMaps.set(map2.id, updatedMap);
+      return newMaps;
+    });
+
+    setAddingNode(null);
+  }, [addingNode, map2, canEditMap2]);
+
+  // Handle adding a link (and potentially missing nodes) to user's map
+  const handleAddLink = useCallback(async () => {
+    if (!addingLink || !map2 || !canEditMap2) return;
+
+    const { link, source, target } = addingLink;
+    let updatedNodes = [...map2.nodes];
+    let newSourceId = source.id;
+    let newTargetId = target.id;
+
+    // Check if source node exists in map2 (by label match)
+    const existingSource = map2.nodes.find(
+      (n) => n.label === source.label && n.type === source.type
+    );
+    if (!existingSource) {
+      // Add source node
+      newSourceId = `node_${Date.now()}_src`;
+      const newSourceNode: MapNode = {
+        ...source,
+        id: newSourceId,
+        position: {
+          x: (updatedNodes.length % 4) * 200 + 50,
+          y: Math.floor(updatedNodes.length / 4) * 150 + 50,
+        },
+      };
+      updatedNodes = [...updatedNodes, newSourceNode];
+    } else {
+      newSourceId = existingSource.id;
+    }
+
+    // Check if target node exists in map2 (by label match)
+    const existingTarget = updatedNodes.find(
+      (n) => n.label === target.label && n.type === target.type
+    );
+    if (!existingTarget) {
+      // Add target node
+      newTargetId = `node_${Date.now()}_tgt`;
+      const newTargetNode: MapNode = {
+        ...target,
+        id: newTargetId,
+        position: {
+          x: (updatedNodes.length % 4) * 200 + 50,
+          y: Math.floor(updatedNodes.length / 4) * 150 + 50,
+        },
+      };
+      updatedNodes = [...updatedNodes, newTargetNode];
+    } else {
+      newTargetId = existingTarget.id;
+    }
+
+    // Create new link with updated node IDs
+    const newLink: MapLink = {
+      ...link,
+      id: `link_${Date.now()}`,
+      sourceNodeId: newSourceId,
+      targetNodeId: newTargetId,
+    };
+
+    const updatedLinks = [...map2.links, newLink];
+    await updateMap(map2.id, { nodes: updatedNodes, links: updatedLinks });
+
+    // Update local state
+    setMaps((prev) => {
+      const newMaps = new Map(prev);
+      const updatedMap = { ...map2, nodes: updatedNodes, links: updatedLinks };
+      newMaps.set(map2.id, updatedMap);
+      return newMaps;
+    });
+
+    setAddingLink(null);
+  }, [addingLink, map2, canEditMap2]);
 
   if (loading) {
     return (
@@ -213,12 +330,24 @@ export function ComparisonViewPage() {
                   const adjusted = currentResult.adjustedNodes1.find(
                     (a) => a.nodeId === nodeId
                   );
+                  if (!node) return null;
                   return (
                     <li key={nodeId} className="missing-item">
-                      <span className={`node-type ${node?.type || 'noun'}`}>
-                        {node?.type === 'verb' ? '動詞' : '名詞'}
+                      <span className={`node-type ${node.type}`}>
+                        {node.type === 'verb' ? t('editor.verb') : t('editor.noun')}
                       </span>
-                      {adjusted?.adjustedLabel || node?.label}
+                      <span className="item-label">
+                        {adjusted?.adjustedLabel || node.label}
+                      </span>
+                      {canEditMap2 && (
+                        <button
+                          className="add-item-button"
+                          onClick={() => setAddingNode(node)}
+                          title={t('comparisons.addToMap')}
+                        >
+                          +
+                        </button>
+                      )}
                     </li>
                   );
                 })}
@@ -240,16 +369,30 @@ export function ComparisonViewPage() {
                   const targetNode = map1?.nodes.find(
                     (n) => n.id === link?.targetNodeId
                   );
-                  if (!sourceNode || !targetNode) return null;
+                  if (!link || !sourceNode || !targetNode) return null;
                   return (
                     <li key={linkId} className="missing-item proposition">
                       <span className={`node-label ${sourceNode.type}`}>
                         {sourceNode.label}
                       </span>
-                      <span className="arrow">→</span>
+                      <span className="link-info">
+                        {link.label && `(${link.label})`} {link.relationship}
+                      </span>
+                      <span className="arrow">&rarr;</span>
                       <span className={`node-label ${targetNode.type}`}>
                         {targetNode.label}
                       </span>
+                      {canEditMap2 && (
+                        <button
+                          className="add-item-button"
+                          onClick={() =>
+                            setAddingLink({ link, source: sourceNode, target: targetNode })
+                          }
+                          title={t('comparisons.addToMap')}
+                        >
+                          +
+                        </button>
+                      )}
                     </li>
                   );
                 })}
@@ -313,6 +456,30 @@ export function ComparisonViewPage() {
         <PermissionManager
           comparisonId={comparison.id}
           onClose={() => setShowPermissions(false)}
+        />
+      )}
+
+      {/* Add node dialog */}
+      {addingNode && map2 && (
+        <AddToMapDialog
+          type="node"
+          node={addingNode}
+          targetMapTitle={map2.title}
+          onConfirm={handleAddNode}
+          onCancel={() => setAddingNode(null)}
+        />
+      )}
+
+      {/* Add link dialog */}
+      {addingLink && map2 && (
+        <AddToMapDialog
+          type="link"
+          link={addingLink.link}
+          sourceNode={addingLink.source}
+          targetNode={addingLink.target}
+          targetMapTitle={map2.title}
+          onConfirm={handleAddLink}
+          onCancel={() => setAddingLink(null)}
         />
       )}
     </div>

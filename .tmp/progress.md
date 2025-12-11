@@ -135,7 +135,24 @@ Firestoreセキュリティルールをデプロイし、テストデータ作�
 - Property 16: トピック境界の尊重
 - Property 17: トピック別の整理
 
-## 最近の更新（2025-12-10）
+## 最近の更新（2025-12-11）
+
+### 比較画面から命題追加機能と色スキーム変更
+- 比較結果の色スキームを変更:
+  - 一致: 黄色/アンバー (#F59E0B) ← 以前は緑
+  - 不足: 赤 (#EF4444) ← 以前はオレンジ
+- 比較画面から不足している命題（ノード/リンク）を自分のマップに追加する機能を実装
+- 追加確認ダイアログ（AddToMapDialog）を新規作成
+- 凡例を日本語化（「一致」「不足」）
+- 変更ファイル:
+  - `frontend/src/components/ComparisonMapView.tsx` - 色スキーム変更、凡例更新
+  - `frontend/src/components/AddToMapDialog.tsx` - 新規作成
+  - `frontend/src/pages/ComparisonViewPage.tsx` - 追加ボタン、ハンドラー実装
+  - `frontend/src/App.css` - スタイル追加
+  - `frontend/src/i18n/locales/ja.json` - 翻訳キー追加
+  - `frontend/src/i18n/locales/en.json` - 翻訳キー追加
+
+## 過去の更新（2025-12-10）
 
 ### 比較機能の動作確認完了
 - Playwrightによる自動テストで比較詳細ページの動作を確認
