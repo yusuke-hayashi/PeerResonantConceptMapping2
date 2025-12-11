@@ -13,6 +13,22 @@ import '@xyflow/react/dist/style.css';
 import { ConceptNode } from './ConceptNode';
 import type { MapNode, MapLink, NodeAdjustmentResult } from '../services/firestore';
 
+/**
+ * Groups edges by node pair to detect multiple edges between the same nodes
+ * Used for calculating label offsets to avoid overlap
+ */
+function groupEdgesByNodePair(links: MapLink[]): Map<string, MapLink[]> {
+  const groups = new Map<string, MapLink[]>();
+  links.forEach((link) => {
+    // Treat bidirectional edges as the same group
+    const key = [link.sourceNodeId, link.targetNodeId].sort().join('-');
+    const group = groups.get(key) || [];
+    group.push(link);
+    groups.set(key, group);
+  });
+  return groups;
+}
+
 const nodeTypes: NodeTypes = {
   conceptNode: ConceptNode,
 };
@@ -89,11 +105,23 @@ export function ComparisonMapView({
     });
   }, [nodes, matchedNodeIds, uniqueNodeIds, adjustedLabelMap]);
 
-  // Convert links with highlighting
+  // Convert links with highlighting and label offset for overlap avoidance
   const reactFlowEdges = useMemo((): Edge[] => {
+    const edgeGroups = groupEdgesByNodePair(links);
+
     return links.map((link) => {
       const isMatched = matchedLinkIds.includes(link.id);
       const isUnique = uniqueLinkIds.includes(link.id);
+
+      // Calculate offset for edges between the same node pair
+      const groupKey = [link.sourceNodeId, link.targetNodeId].sort().join('-');
+      const group = edgeGroups.get(groupKey) || [link];
+      const indexInGroup = group.findIndex((l) => l.id === link.id);
+      const groupSize = group.length;
+
+      // Calculate Y offset to distribute labels (centered distribution)
+      const labelOffset =
+        groupSize > 1 ? (indexInGroup - (groupSize - 1) / 2) * 25 : 0;
 
       // Determine stroke color
       let strokeColor = '#6B7280'; // default gray
@@ -115,10 +143,16 @@ export function ComparisonMapView({
         source: link.sourceNodeId,
         target: link.targetNodeId,
         label: displayLabel,
-        type: 'default',
+        type: groupSize > 1 ? 'smoothstep' : 'default',
         style: { stroke: strokeColor, strokeWidth: isMatched || isUnique ? 3 : 2 },
-        labelStyle: { fill: strokeColor, fontWeight: isMatched || isUnique ? 600 : 500, fontSize: 12 },
+        labelStyle: {
+          fill: strokeColor,
+          fontWeight: isMatched || isUnique ? 600 : 500,
+          fontSize: 12,
+          transform: `translateY(${labelOffset}px)`,
+        },
         labelBgStyle: { fill: '#fff', fillOpacity: 0.9 },
+        ...(groupSize > 1 && { pathOptions: { offset: labelOffset } }),
       };
     });
   }, [links, matchedLinkIds, uniqueLinkIds]);
