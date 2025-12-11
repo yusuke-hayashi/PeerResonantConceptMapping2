@@ -82,6 +82,7 @@ function extractJSON<T>(text: string): T {
 
 /**
  * Adjust vocabulary for nodes
+ * NOUNs can only match NOUNs, VERBs can only match VERBs
  */
 export async function adjustNodeLabels(
   nodes: MapNode[],
@@ -91,18 +92,31 @@ export async function adjustNodeLabels(
     return [];
   }
 
-  const labels = nodes.map(n => n.label);
-  const referenceLabels = referenceNodes?.map(n => n.label) || [];
+  // 参照語彙を名詞/動詞別に分類
+  const referenceNouns = referenceNodes?.filter(n => n.type === 'noun').map(n => n.label) || [];
+  const referenceVerbs = referenceNodes?.filter(n => n.type === 'verb').map(n => n.label) || [];
+
+  // ノードタイプ付きのラベルリスト
+  const labelsWithType = nodes.map(n => `${n.type.toUpperCase()}: "${n.label}"`).join('\n');
 
   const prompt = `
 Normalize these concept map node labels to standard vocabulary.
-${referenceLabels.length > 0 ? `Reference labels (preferred vocabulary): ${JSON.stringify(referenceLabels)}` : ''}
 
-Labels to normalize: ${JSON.stringify(labels)}
+IMPORTANT RULES:
+1. NOUN nodes must ONLY be adjusted to other NOUNS from the reference vocabulary
+2. VERB nodes must ONLY be adjusted to other VERBS from the reference vocabulary
+3. NEVER convert a verb to a noun or a noun to a verb
+4. If no matching term exists in the reference vocabulary, keep the original label
+
+Reference NOUN vocabulary: ${JSON.stringify(referenceNouns)}
+Reference VERB vocabulary: ${JSON.stringify(referenceVerbs)}
+
+Labels to normalize (with type):
+${labelsWithType}
 
 For each label, provide:
 1. The original label
-2. A normalized/standardized version (use reference labels if similar meaning exists)
+2. A normalized/standardized version (MUST be same type - noun->noun, verb->verb)
 3. Confidence score (0-1)
 
 Respond with JSON array only:
@@ -205,7 +219,8 @@ export async function findMatchingNodes(
   const adjustedMap1 = new Map(adjusted1.map(a => [a.nodeId, a]));
   const adjustedMap2 = new Map(adjusted2.map(a => [a.nodeId, a]));
 
-  // Find matches based on adjusted labels
+  // Find matches based on adjusted labels AND node type (noun/verb)
+  // 動詞は動詞同士、名詞は名詞同士でのみマッチする
   for (const node1 of nodes1) {
     const adj1 = adjustedMap1.get(node1.id);
     if (!adj1) continue;
@@ -216,8 +231,11 @@ export async function findMatchingNodes(
       const adj2 = adjustedMap2.get(node2.id);
       if (!adj2) continue;
 
-      // Check if adjusted labels match (case-insensitive)
-      if (adj1.adjustedLabel.toLowerCase() === adj2.adjustedLabel.toLowerCase()) {
+      // Check if adjusted labels match (case-insensitive) AND node types match
+      if (
+        adj1.adjustedLabel.toLowerCase() === adj2.adjustedLabel.toLowerCase() &&
+        node1.type === node2.type
+      ) {
         matches.push({
           node1Id: node1.id,
           node2Id: node2.id,
