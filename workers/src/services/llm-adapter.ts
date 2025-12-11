@@ -255,25 +255,42 @@ If no adjustment is needed, return the same label with confidence 1.00.`;
       referenceNodes?: Node[],
       referenceLinks?: Link[]
     ): Promise<MapAdjustmentResult> {
-      // Build context from reference map if available
-      let context = '';
+      // Build reference vocabulary grouped by type (noun/verb)
+      let nounContext = '';
+      let verbContext = '';
       if (referenceNodes && referenceNodes.length > 0) {
-        const referenceLabels = referenceNodes.map((n) => n.label).join(', ');
-        context = `Reference vocabulary: ${referenceLabels}`;
+        const referenceNouns = referenceNodes.filter((n) => n.type === 'noun').map((n) => n.label);
+        const referenceVerbs = referenceNodes.filter((n) => n.type === 'verb').map((n) => n.label);
+        if (referenceNouns.length > 0) {
+          nounContext = `Reference NOUN vocabulary: ${referenceNouns.join(', ')}`;
+        }
+        if (referenceVerbs.length > 0) {
+          verbContext = `Reference VERB vocabulary: ${referenceVerbs.join(', ')}`;
+        }
       }
 
       const systemPrompt = `You are a vocabulary standardization assistant for concept maps.
 Your task is to normalize terminology to match a reference vocabulary while preserving semantic meaning.
+
+IMPORTANT RULES:
+1. NOUN nodes must ONLY be adjusted to other NOUNS from the reference vocabulary
+2. VERB nodes must ONLY be adjusted to other VERBS from the reference vocabulary
+3. NEVER convert a verb to a noun or a noun to a verb
+4. If no matching term exists in the reference vocabulary, keep the original label
+
+${nounContext}
+${verbContext}
+
 For each label/relationship, return a line in the format:
 "original -> adjusted (confidence: X.XX)"
-where X.XX is a confidence score between 0 and 1.
-${context ? context : 'Standardize using common academic terminology.'}`;
+where X.XX is a confidence score between 0 and 1.`;
 
-      // Build batch request for nodes
-      const nodeLabels = nodes.map((n) => `Node "${n.id}": "${n.label}"`).join('\n');
+      // Build batch request for nodes with type information
+      const nodeLabels = nodes.map((n) => `${n.type.toUpperCase()} "${n.id}": "${n.label}"`).join('\n');
       const linkRelationships = links.map((l) => `Link "${l.id}": "${l.relationship}"`).join('\n');
 
-      const userPrompt = `Standardize the following concept map elements:
+      const userPrompt = `Standardize the following concept map elements.
+Remember: NOUNs can only match NOUNs, VERBs can only match VERBs.
 
 NODES:
 ${nodeLabels}

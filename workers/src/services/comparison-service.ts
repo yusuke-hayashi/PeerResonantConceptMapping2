@@ -147,7 +147,8 @@ export function createComparisonService(
     const matchedLinkIds1 = new Set<string>();
     const matchedLinkIds2 = new Set<string>();
 
-    // Match nodes based on adjusted labels
+    // Match nodes based on adjusted labels AND node type (noun/verb)
+    // 動詞は動詞同士、名詞は名詞同士でのみマッチする
     for (const adj1 of adjustment1.nodes) {
       for (const adj2 of adjustment2.nodes) {
         if (
@@ -158,7 +159,8 @@ export function createComparisonService(
           const node1 = nodes1.find((n) => n.id === adj1.nodeId);
           const node2 = nodes2.find((n) => n.id === adj2.nodeId);
 
-          if (node1 && node2) {
+          // ノードタイプが一致する場合のみマッチとする
+          if (node1 && node2 && node1.type === node2.type) {
             matchedNodes.push({
               node1Id: adj1.nodeId,
               node2Id: adj2.nodeId,
