@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import {
   ReactFlow,
   Controls,
@@ -6,6 +6,8 @@ import {
   type Node,
   type Edge,
   type NodeTypes,
+  type OnNodesChange,
+  applyNodeChanges,
   BackgroundVariant,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -44,8 +46,9 @@ interface ComparisonMapViewProps {
 }
 
 /**
- * Read-only concept map view for comparison display
+ * Interactive concept map view for comparison display
  * Highlights matched nodes/links in green and unique ones in orange
+ * Nodes can be dragged to adjust layout and avoid label overlap
  */
 export function ComparisonMapView({
   nodes,
@@ -67,8 +70,8 @@ export function ComparisonMapView({
     return map;
   }, [adjustedNodes]);
 
-  // Convert nodes with highlighting
-  const reactFlowNodes = useMemo((): Node[] => {
+  // Convert nodes with highlighting (initial state)
+  const initialNodes = useMemo((): Node[] => {
     return nodes.map((node, index) => {
       const isMatched = matchedNodeIds.includes(node.id);
       const isUnique = uniqueNodeIds.includes(node.id);
@@ -104,6 +107,20 @@ export function ComparisonMapView({
       };
     });
   }, [nodes, matchedNodeIds, uniqueNodeIds, adjustedLabelMap]);
+
+  // Manage node state for dragging
+  const [reactFlowNodes, setReactFlowNodes] = useState<Node[]>(initialNodes);
+
+  // Update nodes when initial data changes
+  useEffect(() => {
+    setReactFlowNodes(initialNodes);
+  }, [initialNodes]);
+
+  // Handle node position changes (drag)
+  const onNodesChange: OnNodesChange = useCallback(
+    (changes) => setReactFlowNodes((nds) => applyNodeChanges(changes, nds)),
+    []
+  );
 
   // Convert links with highlighting and label offset for overlap avoidance
   const reactFlowEdges = useMemo((): Edge[] => {
@@ -163,10 +180,11 @@ export function ComparisonMapView({
         nodes={reactFlowNodes}
         edges={reactFlowEdges}
         nodeTypes={nodeTypes}
+        onNodesChange={onNodesChange}
         fitView
-        nodesDraggable={false}
+        nodesDraggable={true}
         nodesConnectable={false}
-        elementsSelectable={false}
+        elementsSelectable={true}
         panOnDrag
         zoomOnScroll
       >
