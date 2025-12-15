@@ -219,8 +219,8 @@ export async function findMatchingNodes(
   const adjustedMap1 = new Map(adjusted1.map(a => [a.nodeId, a]));
   const adjustedMap2 = new Map(adjusted2.map(a => [a.nodeId, a]));
 
-  // Find matches based on adjusted labels AND node type (noun/verb)
-  // 動詞は動詞同士、名詞は名詞同士でのみマッチする
+  // Find matches based on adjusted labels only (積極的なマッチング)
+  // ノードタイプ（名詞/動詞）は無視してラベルのみで比較
   for (const node1 of nodes1) {
     const adj1 = adjustedMap1.get(node1.id);
     if (!adj1) continue;
@@ -231,11 +231,8 @@ export async function findMatchingNodes(
       const adj2 = adjustedMap2.get(node2.id);
       if (!adj2) continue;
 
-      // Check if adjusted labels match (case-insensitive) AND node types match
-      if (
-        adj1.adjustedLabel.toLowerCase() === adj2.adjustedLabel.toLowerCase() &&
-        node1.type === node2.type
-      ) {
+      // Check if adjusted labels match (case-insensitive) - タイプは無視
+      if (adj1.adjustedLabel.toLowerCase() === adj2.adjustedLabel.toLowerCase()) {
         matches.push({
           node1Id: node1.id,
           node2Id: node2.id,
@@ -266,32 +263,21 @@ export async function findMatchingLinks(
   links2: MapLink[],
   adjusted1: LinkAdjustmentResult[],
   adjusted2: LinkAdjustmentResult[],
-  nodeMatches: NodeMatch[]
+  _nodeMatches: NodeMatch[]
 ): Promise<{ matches: LinkMatch[]; unique1: string[]; unique2: string[] }> {
   const matches: LinkMatch[] = [];
   const matched1 = new Set<string>();
   const matched2 = new Set<string>();
 
-  // Create node mapping from map1 to map2
-  const nodeMap1To2 = new Map<string, string>();
-  for (const match of nodeMatches) {
-    nodeMap1To2.set(match.node1Id, match.node2Id);
-  }
-
   // Create lookup maps
   const adjustedMap1 = new Map(adjusted1.map(a => [a.linkId, a]));
   const adjustedMap2 = new Map(adjusted2.map(a => [a.linkId, a]));
 
-  // Find matches based on adjusted relationships and connected nodes
+  // Find matches based on adjusted relationships only (積極的なマッチング)
+  // 接続ノードは無視してrelationshipのみで比較
   for (const link1 of links1) {
     const adj1 = adjustedMap1.get(link1.id);
     if (!adj1) continue;
-
-    // Get corresponding nodes in map2
-    const targetSource2 = nodeMap1To2.get(link1.sourceNodeId);
-    const targetTarget2 = nodeMap1To2.get(link1.targetNodeId);
-
-    if (!targetSource2 || !targetTarget2) continue;
 
     for (const link2 of links2) {
       if (matched2.has(link2.id)) continue;
@@ -299,15 +285,11 @@ export async function findMatchingLinks(
       const adj2 = adjustedMap2.get(link2.id);
       if (!adj2) continue;
 
-      // Check if links connect the same (matched) nodes and have similar relationships
-      const nodesMatch =
-        (link2.sourceNodeId === targetSource2 && link2.targetNodeId === targetTarget2) ||
-        (link2.sourceNodeId === targetTarget2 && link2.targetNodeId === targetSource2);
-
+      // relationshipの比較のみでマッチ判定
       const relationshipMatch =
         adj1.adjustedRelationship.toLowerCase() === adj2.adjustedRelationship.toLowerCase();
 
-      if (nodesMatch && relationshipMatch) {
+      if (relationshipMatch) {
         matches.push({
           link1Id: link1.id,
           link2Id: link2.id,

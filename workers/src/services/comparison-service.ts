@@ -147,8 +147,8 @@ export function createComparisonService(
     const matchedLinkIds1 = new Set<string>();
     const matchedLinkIds2 = new Set<string>();
 
-    // Match nodes based on adjusted labels AND node type (noun/verb)
-    // 動詞は動詞同士、名詞は名詞同士でのみマッチする
+    // Match nodes based on adjusted labels only (積極的なマッチング)
+    // ノードタイプ（名詞/動詞）は無視してラベルのみで比較
     for (const adj1 of adjustment1.nodes) {
       for (const adj2 of adjustment2.nodes) {
         if (
@@ -156,28 +156,22 @@ export function createComparisonService(
           !matchedNodeIds1.has(adj1.nodeId) &&
           !matchedNodeIds2.has(adj2.nodeId)
         ) {
-          const node1 = nodes1.find((n) => n.id === adj1.nodeId);
-          const node2 = nodes2.find((n) => n.id === adj2.nodeId);
-
-          // ノードタイプが一致する場合のみマッチとする
-          if (node1 && node2 && node1.type === node2.type) {
-            matchedNodes.push({
-              node1Id: adj1.nodeId,
-              node2Id: adj2.nodeId,
-              originalLabel1: adj1.originalLabel,
-              originalLabel2: adj2.originalLabel,
-              adjustedLabel: adj1.adjustedLabel,
-              similarity: Math.min(adj1.confidence, adj2.confidence),
-            });
-            matchedNodeIds1.add(adj1.nodeId);
-            matchedNodeIds2.add(adj2.nodeId);
-          }
+          matchedNodes.push({
+            node1Id: adj1.nodeId,
+            node2Id: adj2.nodeId,
+            originalLabel1: adj1.originalLabel,
+            originalLabel2: adj2.originalLabel,
+            adjustedLabel: adj1.adjustedLabel,
+            similarity: Math.min(adj1.confidence, adj2.confidence),
+          });
+          matchedNodeIds1.add(adj1.nodeId);
+          matchedNodeIds2.add(adj2.nodeId);
         }
       }
     }
 
-    // Match links based on adjusted relationships and matched nodes
-    // labelは比較しない（ゆるいマッチング）
+    // Match links based on adjusted relationships only (積極的なマッチング)
+    // labelも接続ノードも無視してrelationshipのみで比較
     for (const adj1 of adjustment1.links) {
       for (const adj2 of adjustment2.links) {
         // 既にマッチ済みならスキップ
@@ -185,35 +179,21 @@ export function createComparisonService(
           continue;
         }
 
-        const link1 = links1.find((l) => l.id === adj1.linkId);
-        const link2 = links2.find((l) => l.id === adj2.linkId);
+        // relationshipの比較（LLM調整済み）のみでマッチ判定
+        const relationshipMatches =
+          adj1.adjustedRelationship.toLowerCase() === adj2.adjustedRelationship.toLowerCase();
 
-        if (link1 && link2) {
-          // relationshipの比較（LLM調整済み）
-          // labelは無視してrelationshipのみで比較
-          const relationshipMatches =
-            adj1.adjustedRelationship.toLowerCase() === adj2.adjustedRelationship.toLowerCase();
-
-          if (relationshipMatches) {
-            // Check if source and target nodes are also matched
-            const sourceMatched =
-              matchedNodeIds1.has(link1.sourceNodeId) && matchedNodeIds2.has(link2.sourceNodeId);
-            const targetMatched =
-              matchedNodeIds1.has(link1.targetNodeId) && matchedNodeIds2.has(link2.targetNodeId);
-
-            if (sourceMatched || targetMatched) {
-              matchedLinks.push({
-                link1Id: adj1.linkId,
-                link2Id: adj2.linkId,
-                originalRelationship1: adj1.originalRelationship,
-                originalRelationship2: adj2.originalRelationship,
-                adjustedRelationship: adj1.adjustedRelationship,
-                similarity: Math.min(adj1.confidence, adj2.confidence),
-              });
-              matchedLinkIds1.add(adj1.linkId);
-              matchedLinkIds2.add(adj2.linkId);
-            }
-          }
+        if (relationshipMatches) {
+          matchedLinks.push({
+            link1Id: adj1.linkId,
+            link2Id: adj2.linkId,
+            originalRelationship1: adj1.originalRelationship,
+            originalRelationship2: adj2.originalRelationship,
+            adjustedRelationship: adj1.adjustedRelationship,
+            similarity: Math.min(adj1.confidence, adj2.confidence),
+          });
+          matchedLinkIds1.add(adj1.linkId);
+          matchedLinkIds2.add(adj2.linkId);
         }
       }
     }
